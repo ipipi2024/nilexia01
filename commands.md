@@ -1,0 +1,1 @@
+$env:PATH = "C:\Users\ipipi2022\Desktop\node-v24.11.1-win-x64\node-v24.11.1-win-x64;$env:PATH"
