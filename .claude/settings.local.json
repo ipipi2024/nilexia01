@@ -2,7 +2,8 @@
   "enabledMcpjsonServers": [
     "next-devtools",
     "vercel",
-    "mongodb"
+    "mongodb",
+    "better-auth"
   ],
   "enableAllProjectMcpServers": true
 }
