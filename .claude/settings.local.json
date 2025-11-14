@@ -1,6 +1,7 @@
 {
   "enabledMcpjsonServers": [
-    "next-devtools"
+    "next-devtools",
+    "vercel"
   ],
   "enableAllProjectMcpServers": true
 }
