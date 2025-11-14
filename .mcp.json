@@ -7,6 +7,13 @@
     "vercel": {
       "type": "http",
       "url": "https://mcp.vercel.com/"
+    },
+    "mongodb": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "mongodb-mcp-server@latest", "--readOnly"],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb+srv://ipulepipi60_db_user:f8rRtKlEUSr7tJbn@cluster0.ileviip.mongodb.net/nilexia01"
+      }
     }
   }
 }
