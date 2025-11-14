@@ -1,16 +1,8 @@
 {
   "mcpServers": {
     "next-devtools": {
-      "command": "npx",
-      "args": ["-y", "next-devtools-mcp@latest"]
-    },
-    "mongodb": {
-      "command": "npx",
-      "args": ["-y", "mongodb-mcp-server@latest"],
-      "env": {
-        "MDB_MCP_CONNECTION_STRING": "${MONGODB_URI}"
-      }
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "next-devtools-mcp@latest"]
     }
   }
 }
-
