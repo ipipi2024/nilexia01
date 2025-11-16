@@ -1,5 +1,10 @@
 Building Authentication and User Session using Better Auth Open Source Library
+
 Can you use better auth mcp server and consult the documenation to allow new users to be 
 able to register using email and 8 character password and must be stored in the mongodb database
 
-When user signs in thier 
+When user signs in, the session should be stored in the browser and removed when logout.
+
+Just focues on this backend development and we can test with insomnia to see it works
+
+Make sure to examine the codebase first.
