@@ -1,4 +1,4 @@
-import clientPromise from "./mongodb";
+import client from "./mongodb";
 
 /**
  * Sets up MongoDB TTL index for automatic session cleanup
@@ -14,7 +14,6 @@ import clientPromise from "./mongodb";
  */
 export async function setupSessionCleanup() {
     try {
-        const client = await clientPromise;
         const db = client.db();
 
         // Create TTL index on the session collection
@@ -22,6 +21,7 @@ export async function setupSessionCleanup() {
         // NOTE: This is an expensive operation as it creates an index on the expiresAt field
         // for every session document in the database. MongoDB will scan all existing sessions
         // to build this index, but it only happens once (or when the index doesn't exist).
+        // Connection to MongoDB happens lazily when this first operation runs
         await db.collection('session').createIndex(
             { expiresAt: 1 },
             {
