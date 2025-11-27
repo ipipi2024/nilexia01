@@ -13,6 +13,8 @@ import client from "./mongodb";
  * The long-term benefit of automatic cleanup outweighs the initial setup cost.
  */
 export async function setupSessionCleanup() {
+    console.log(">>> setupSessionCleanup() CALLED");
+
     try {
         const db = client.db();
 
@@ -36,3 +38,41 @@ export async function setupSessionCleanup() {
         // Don't throw - allow app to continue even if index creation fails
     }
 }
+
+
+// Declare a global slot for dev/HMR so we don't re-run on every reload
+declare global {
+    // undefined = not started yet
+    // Promise<void> = already started / running / completed
+    // null is allowed too, but we won't use it here
+    // eslint-disable-next-line no-var
+    var _sessionCleanupPromise: Promise<void> | undefined;
+  }
+  
+  // For production (no HMR), we can keep a simple module-level variable
+  let sessionCleanupPromise: Promise<void> | undefined;
+  
+  /**
+   * Ensure that session cleanup is initialized at most once per process.
+   * Safe to call multiple times; only the first call actually triggers the work.
+   */
+  export function ensureSessionCleanupRunsOnce() {
+    if (process.env.NODE_ENV === "development") {
+      // In dev, use globalThis to survive HMR reloads
+      if (!global._sessionCleanupPromise) {
+        console.log(">>> DEV: creating global._sessionCleanupPromise");
+        global._sessionCleanupPromise = setupSessionCleanup();
+      }
+      return global._sessionCleanupPromise;
+    } else {
+      // In production, modules are loaded once per process, but just to be safe:
+      if (!sessionCleanupPromise) {
+        console.log(">>> PROD: creating sessionCleanupPromise");
+        sessionCleanupPromise = setupSessionCleanup();
+      }else{
+        console.log(">>> PROD: session cleanup already initialized — reusing");
+      }
+      return sessionCleanupPromise;
+    }
+  }
+  
