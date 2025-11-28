@@ -4,9 +4,19 @@ import { headers } from "next/headers";
 import { getSessionCookie } from "better-auth/cookies";
 
 export async function middleware(request: NextRequest) {
+    const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
+
     // Step 1: Fast cookie check - avoid DB query for anonymous users
     const sessionCookie = getSessionCookie(request);
     if (!sessionCookie) {
+        // API routes: return 401 JSON response
+        if (isApiRoute) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+        // Page routes: redirect to login
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
@@ -15,6 +25,14 @@ export async function middleware(request: NextRequest) {
         headers: await headers()
     });
     if (!session) {
+        // API routes: return 401 JSON response
+        if (isApiRoute) {
+            return NextResponse.json(
+                { error: "Unauthorized" },
+                { status: 401 }
+            );
+        }
+        // Page routes: redirect to login
         return NextResponse.redirect(new URL("/login", request.url));
     }
 
