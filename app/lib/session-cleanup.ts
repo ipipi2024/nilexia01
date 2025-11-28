@@ -13,8 +13,6 @@ import client from "./mongodb";
  * The long-term benefit of automatic cleanup outweighs the initial setup cost.
  */
 export async function setupSessionCleanup() {
-    console.log(">>> setupSessionCleanup() CALLED");
-
     try {
         const db = client.db();
 
@@ -32,9 +30,13 @@ export async function setupSessionCleanup() {
             }
         );
 
-        console.log('✓ Session TTL index created successfully');
+        if (process.env.NODE_ENV === "development") {
+            console.log('✓ Session TTL index created successfully');
+        }
     } catch (error) {
-        console.error('Failed to create session TTL index:', error);
+        if (process.env.NODE_ENV === "development") {
+            console.error('Failed to create session TTL index:', error);
+        }
         // Don't throw - allow app to continue even if index creation fails
     }
 }
@@ -60,17 +62,13 @@ declare global {
     if (process.env.NODE_ENV === "development") {
       // In dev, use globalThis to survive HMR reloads
       if (!global._sessionCleanupPromise) {
-        console.log(">>> DEV: creating global._sessionCleanupPromise");
         global._sessionCleanupPromise = setupSessionCleanup();
       }
       return global._sessionCleanupPromise;
     } else {
       // In production, modules are loaded once per process, but just to be safe:
       if (!sessionCleanupPromise) {
-        console.log(">>> PROD: creating sessionCleanupPromise");
         sessionCleanupPromise = setupSessionCleanup();
-      }else{
-        console.log(">>> PROD: session cleanup already initialized — reusing");
       }
       return sessionCleanupPromise;
     }

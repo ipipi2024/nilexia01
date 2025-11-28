@@ -21,6 +21,8 @@ export const auth = betterAuth({
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 day in seconds
     },
-    trustedOrigins: ["http://localhost:3000"]
+    trustedOrigins: process.env.NODE_ENV === "production"
+        ? [process.env.BETTER_AUTH_URL || "https://yourdomain.com"]
+        : ["http://localhost:3000"]
 });
 
