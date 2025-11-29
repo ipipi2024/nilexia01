@@ -31,7 +31,14 @@ export default function LoginPage() {
                     router.push("/dashboard");
                 },
                 onError: (ctx) => {
-                    setError(ctx.error.message || "An error occurred during login");
+                    // Handle email verification errors specifically
+                    if (ctx.error.status === 403) {
+                        setError(
+                            "Please verify your email address before signing in. Check your inbox for the verification link."
+                        );
+                    } else {
+                        setError(ctx.error.message || "An error occurred during login");
+                    }
                     setLoading(false);
                 },
             }

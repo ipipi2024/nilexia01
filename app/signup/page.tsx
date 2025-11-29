@@ -9,12 +9,14 @@ export default function SignUpPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
+        setSuccess("");
         setLoading(true);
 
         await authClient.signUp.email(
@@ -28,7 +30,11 @@ export default function SignUpPage() {
                     setLoading(true);
                 },
                 onSuccess: () => {
-                    router.push("/dashboard");
+                    setSuccess(
+                        "Account created! Please check your email to verify your account before signing in."
+                    );
+                    setLoading(false);
+                    // Don't redirect to dashboard - user needs to verify email first
                 },
                 onError: (ctx) => {
                     setError(ctx.error.message || "An error occurred during sign up");
@@ -101,6 +107,11 @@ export default function SignUpPage() {
                 {error && (
                     <div style={{ color: "red", padding: "10px", backgroundColor: "#fee", borderRadius: "4px" }}>
                         {error}
+                    </div>
+                )}
+                {success && (
+                    <div style={{ color: "green", padding: "10px", backgroundColor: "#efe", borderRadius: "4px" }}>
+                        {success}
                     </div>
                 )}
                 <button
