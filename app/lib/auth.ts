@@ -18,7 +18,26 @@ export const auth = betterAuth({
     emailAndPassword: {
         enabled: true,
         requireEmailVerification: true, // Users must verify email before they can sign in
-        autoSignIn: false // Disabled because we require email verification first
+        autoSignIn: false, // Disabled because we require email verification first
+        sendResetPassword: async ({ user, url }) => {
+            await sendEmail({
+                to: user.email,
+                subject: "Reset your password",
+                text: `Hello! You requested to reset your password. Click the link below to reset your password:\n\n${url}\n\nThis link will expire in 1 hour.\n\nIf you didn't request a password reset, you can safely ignore this email.`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                        <h2>Reset your password</h2>
+                        <p>Hello!</p>
+                        <p>You requested to reset your password. Click the button below to reset your password:</p>
+                        <a href="${url}" style="display: inline-block; background-color: #0070f3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; margin: 16px 0;">Reset Password</a>
+                        <p>Or copy and paste this link into your browser:</p>
+                        <p style="color: #666; word-break: break-all;">${url}</p>
+                        <p style="color: #666; font-size: 14px; margin-top: 32px;">This link will expire in 1 hour.</p>
+                        <p style="color: #666; font-size: 14px;">If you didn't request a password reset, you can safely ignore this email.</p>
+                    </div>
+                `
+            });
+        }
     },
     emailVerification: {
         sendOnSignUp: true, // Automatically send verification email when user signs up

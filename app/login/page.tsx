@@ -85,14 +85,19 @@ export default function LoginPage() {
                         }}
                     />
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <input
-                        id="rememberMe"
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                    />
-                    <label htmlFor="rememberMe">Remember me</label>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <input
+                            id="rememberMe"
+                            type="checkbox"
+                            checked={rememberMe}
+                            onChange={(e) => setRememberMe(e.target.checked)}
+                        />
+                        <label htmlFor="rememberMe">Remember me</label>
+                    </div>
+                    <a href="/forgot-password" style={{ color: "#007bff", fontSize: "14px" }}>
+                        Forgot password?
+                    </a>
                 </div>
                 {error && (
                     <div style={{ color: "red", padding: "10px", backgroundColor: "#fee", borderRadius: "4px" }}>
