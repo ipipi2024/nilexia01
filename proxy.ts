@@ -3,7 +3,7 @@ import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 import { getSessionCookie } from "better-auth/cookies";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
 
     // Step 1: Fast cookie check - avoid DB query for anonymous users
