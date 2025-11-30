@@ -22,6 +22,37 @@ export default function ResetPasswordPage() {
         }
     }, [tokenError]);
 
+    // MODEL 1: Email Verified on Reset Link Click
+    // When the user clicks the reset link, we verify their email immediately
+    // This is logically consistent because clicking the link proves inbox ownership
+    useEffect(() => {
+        const verifyEmailViaResetLink = async () => {
+            if (token && !tokenError) {
+                try {
+                    const response = await fetch("/api/verify-via-reset-link", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ token }),
+                    });
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        console.error("Failed to verify email via reset link:", data.error);
+                    } else {
+                        console.log("Email verified via reset link:", data.message);
+                    }
+                } catch (err) {
+                    console.error("Error verifying email via reset link:", err);
+                }
+            }
+        };
+
+        verifyEmailViaResetLink();
+    }, [token, tokenError]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
