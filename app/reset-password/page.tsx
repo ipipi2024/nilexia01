@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { authClient } from "../lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [error, setError] = useState("");
@@ -212,5 +212,18 @@ export default function ResetPasswordPage() {
                 </p>
             )}
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
+                <h1 style={{ marginBottom: "20px" }}>Reset Password</h1>
+                <p style={{ color: "#666" }}>Loading...</p>
+            </div>
+        }>
+            <ResetPasswordForm />
+        </Suspense>
     );
 }

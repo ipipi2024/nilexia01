@@ -42,7 +42,6 @@ export async function proxy(request: NextRequest) {
 
 // Configure which routes require authentication
 export const config = {
-    runtime: "nodejs",
     matcher: [
         "/dashboard/:path*", // Protect all dashboard routes
         "/api/protected/:path*", // Protect API routes under /api/protected
