@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { authClient } from "../lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rememberMe, setRememberMe] = useState(true);
@@ -129,5 +129,17 @@ export default function LoginPage() {
                 </a>
             </p>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
+                <p>Loading...</p>
+            </div>
+        }>
+            <LoginForm />
+        </Suspense>
     );
 }
