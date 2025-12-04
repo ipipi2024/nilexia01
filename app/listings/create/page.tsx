@@ -3,17 +3,70 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useUploadThing } from "@/app/lib/uploadthing-utils";
 
 export default function CreateListingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"sell" | "donate" | "rent">("sell");
   const [price, setPrice] = useState("");
-  const [imageUrls, setImageUrls] = useState<string[]>([""]);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+
+  const { startUpload } = useUploadThing("listingImageUploader");
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+
+    // Check total count
+    if (files.length + uploadedImageUrls.length > 5) {
+      setError("Maximum 5 images allowed");
+      return;
+    }
+
+    // Check file sizes (4MB max per file)
+    const oversizedFiles = files.filter(f => f.size > 4 * 1024 * 1024);
+    if (oversizedFiles.length > 0) {
+      setError("Each image must be less than 4MB");
+      return;
+    }
+
+    setSelectedFiles(files);
+    setError("");
+  };
+
+  const handleUploadImages = async () => {
+    if (selectedFiles.length === 0) return;
+
+    try {
+      setUploading(true);
+      setError("");
+
+      const uploadResult = await startUpload(selectedFiles);
+
+      if (uploadResult) {
+        const urls = uploadResult.map((file) => file.url);
+        setUploadedImageUrls([...uploadedImageUrls, ...urls]);
+        setSelectedFiles([]);
+        // Clear file input
+        const fileInput = document.getElementById("file-input") as HTMLInputElement;
+        if (fileInput) fileInput.value = "";
+      }
+    } catch (err: any) {
+      setError(err.message || "Failed to upload images. Please try again.");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeUploadedImage = (index: number) => {
+    setUploadedImageUrls(uploadedImageUrls.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,14 +74,11 @@ export default function CreateListingPage() {
     setLoading(true);
 
     try {
-      // Filter out empty image URLs
-      const validImages = imageUrls.filter(url => url.trim() !== "");
-
       const body: any = {
         title,
         description,
         type,
-        images: validImages,
+        images: uploadedImageUrls,
       };
 
       // Only include price if not donate type
@@ -69,22 +119,6 @@ export default function CreateListingPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const addImageField = () => {
-    if (imageUrls.length < 5) {
-      setImageUrls([...imageUrls, ""]);
-    }
-  };
-
-  const removeImageField = (index: number) => {
-    setImageUrls(imageUrls.filter((_, i) => i !== index));
-  };
-
-  const updateImageUrl = (index: number, value: string) => {
-    const newUrls = [...imageUrls];
-    newUrls[index] = value;
-    setImageUrls(newUrls);
   };
 
   return (
@@ -191,58 +225,101 @@ export default function CreateListingPage() {
 
         <div>
           <label style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
-            Image URLs (Optional, max 5)
+            Images (Optional, max 5)
           </label>
-          {imageUrls.map((url, index) => (
-            <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => updateImageUrl(index, e.target.value)}
-                placeholder="https://example.com/image.jpg"
-                style={{
-                  flex: 1,
-                  padding: "10px",
-                  border: "1px solid #ccc",
-                  borderRadius: "4px",
-                }}
-              />
-              {imageUrls.length > 1 && (
+
+          {/* File Input */}
+          <div style={{ marginBottom: "15px" }}>
+            <input
+              id="file-input"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileSelect}
+              disabled={uploadedImageUrls.length >= 5 || uploading}
+              style={{
+                display: "block",
+                marginBottom: "10px",
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+                width: "100%",
+              }}
+            />
+            {selectedFiles.length > 0 && (
+              <div>
+                <p style={{ margin: "5px 0", fontSize: "14px" }}>
+                  {selectedFiles.length} file(s) selected
+                </p>
                 <button
                   type="button"
-                  onClick={() => removeImageField(index)}
+                  onClick={handleUploadImages}
+                  disabled={uploading}
                   style={{
-                    padding: "10px 15px",
-                    backgroundColor: "#dc3545",
+                    padding: "8px 16px",
+                    backgroundColor: uploading ? "#ccc" : "#28a745",
                     color: "white",
                     border: "none",
                     borderRadius: "4px",
-                    cursor: "pointer",
+                    cursor: uploading ? "not-allowed" : "pointer",
                   }}
                 >
-                  Remove
+                  {uploading ? "Uploading..." : "Upload Images"}
                 </button>
-              )}
+              </div>
+            )}
+          </div>
+
+          {/* Preview Uploaded Images */}
+          {uploadedImageUrls.length > 0 && (
+            <div>
+              <p style={{ fontWeight: "bold", marginBottom: "10px" }}>
+                Uploaded Images ({uploadedImageUrls.length}/5):
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+                {uploadedImageUrls.map((url, index) => (
+                  <div key={index} style={{ position: "relative" }}>
+                    <img
+                      src={url}
+                      alt={`Upload ${index + 1}`}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                        borderRadius: "4px",
+                        border: "1px solid #ddd",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeUploadedImage(index)}
+                      style={{
+                        position: "absolute",
+                        top: "-5px",
+                        right: "-5px",
+                        backgroundColor: "#dc3545",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: "24px",
+                        height: "24px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-          {imageUrls.length < 5 && (
-            <button
-              type="button"
-              onClick={addImageField}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#6c757d",
-                color: "white",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-              }}
-            >
-              + Add Image URL
-            </button>
           )}
-          <small style={{ display: "block", marginTop: "5px", color: "#666" }}>
-            Paste direct image URLs (e.g., from Imgur, Google Drive, etc.)
+
+          <small style={{ display: "block", marginTop: "10px", color: "#666" }}>
+            Select images from your device (max 4MB each, PNG/JPG)
           </small>
         </div>
 
