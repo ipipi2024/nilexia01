@@ -19,6 +19,16 @@ export default function SignUpPage() {
         setSuccess("");
         setLoading(true);
 
+        // Client-side validation: Check email domain before sending request
+        const emailLower = email.toLowerCase();
+        const isFloridaTechEmail = emailLower.endsWith("@fit.edu") || emailLower.endsWith("@my.fit.edu");
+
+        if (!isFloridaTechEmail) {
+            setError("Please use your Florida Tech email address (@fit.edu or @my.fit.edu)");
+            setLoading(false);
+            return;
+        }
+
         await authClient.signUp.email(
             {
                 name,
@@ -68,13 +78,14 @@ export default function SignUpPage() {
                 </div>
                 <div>
                     <label htmlFor="email" style={{ display: "block", marginBottom: "5px" }}>
-                        Email
+                        Florida Tech Email
                     </label>
                     <input
                         id="email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        placeholder="yourname@fit.edu or yourname@my.fit.edu"
                         required
                         style={{
                             width: "100%",
@@ -83,6 +94,7 @@ export default function SignUpPage() {
                             borderRadius: "4px",
                         }}
                     />
+                    <small style={{ color: "#666" }}>Use your @fit.edu or @my.fit.edu email</small>
                 </div>
                 <div>
                     <label htmlFor="password" style={{ display: "block", marginBottom: "5px" }}>

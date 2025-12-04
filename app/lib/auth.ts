@@ -4,6 +4,7 @@ import client from "../lib/mongodb";
 import { ensureSessionCleanupRunsOnce } from "./session-cleanup";
 import { sendEmail } from "./email";
 import { ObjectId } from "mongodb";
+import { APIError } from "better-auth/api";
 
 // Get database instance (connection happens lazily on first operation)
 const db = client.db(); // Uses default database from connection string
@@ -11,6 +12,9 @@ const db = client.db(); // Uses default database from connection string
 // Setup automatic session cleanup via MongoDB TTL index
 // We intentionally do NOT await this; it can run in the background.
 ensureSessionCleanupRunsOnce();
+
+// Allowed email domains for Florida Tech community
+const ALLOWED_DOMAINS = ["@fit.edu", "@my.fit.edu"];
 
 export const auth = betterAuth({
     database: mongodbAdapter(db, {
@@ -84,6 +88,29 @@ export const auth = betterAuth({
     },
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 day in seconds
+    },
+    databaseHooks: {
+        user: {
+            create: {
+                before: async (user) => {
+                    const email = user.email?.toLowerCase() ?? "";
+
+                    // Check if email ends with allowed domains
+                    const isAllowedDomain = ALLOWED_DOMAINS.some(domain =>
+                        email.endsWith(domain)
+                    );
+
+                    if (!isAllowedDomain) {
+                        // Throw custom error with helpful message
+                        throw new APIError("UNAUTHORIZED", {
+                            message: "Only Florida Tech email addresses (@fit.edu or @my.fit.edu) are allowed to register."
+                        });
+                    }
+
+                    // If validation passes, allow user creation to proceed (return void)
+                },
+            },
+        },
     },
     trustedOrigins: process.env.NODE_ENV === "production"
         ? [process.env.BETTER_AUTH_URL || "https://yourdomain.com"]
