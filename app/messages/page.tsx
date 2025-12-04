@@ -90,14 +90,14 @@ export default function ConversationsPage() {
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
       <div style={{ marginBottom: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <h1>Messages</h1>
-        <Link href="/dashboard" style={{
+        <Link href="/" style={{
           padding: "10px 20px",
           backgroundColor: "#6c757d",
           color: "white",
           textDecoration: "none",
           borderRadius: "4px"
         }}>
-          Back to Dashboard
+          Back to Home
         </Link>
       </div>
 

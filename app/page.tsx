@@ -68,6 +68,15 @@ export default function Page() {
           }}>
             My Listings
           </Link>
+          <Link href="/messages" style={{
+            padding: "10px 20px",
+            backgroundColor: "#17a2b8",
+            color: "white",
+            textDecoration: "none",
+            borderRadius: "4px"
+          }}>
+            Messages
+          </Link>
         </div>
       </div>
 

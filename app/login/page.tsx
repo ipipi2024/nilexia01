@@ -28,7 +28,7 @@ export default function LoginPage() {
                     setLoading(true);
                 },
                 onSuccess: () => {
-                    router.push("/dashboard");
+                    router.push("/");
                 },
                 onError: (ctx) => {
                     // Handle email verification errors specifically
