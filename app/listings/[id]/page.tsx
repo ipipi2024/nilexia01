@@ -74,12 +74,12 @@ export default function ListingDetailPage() {
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
+    <div style={{ maxWidth: "800px", margin: "20px auto", padding: "15px" }}>
       <Link href="/" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
         ← Back to listings
       </Link>
 
-      <div style={{ border: "1px solid #ddd", borderRadius: "8px", padding: "30px" }}>
+      <div style={{ border: "1px solid #ddd", borderRadius: "8px", padding: "20px" }}>
         {listing.images.length > 0 && (
           <div style={{ marginBottom: "20px" }}>
             <img
@@ -94,15 +94,22 @@ export default function ListingDetailPage() {
               }}
             />
             {listing.images.length > 1 && (
-              <div style={{ display: "flex", gap: "10px", marginTop: "10px", overflowX: "auto" }}>
+              <div style={{
+                display: "flex",
+                gap: "10px",
+                marginTop: "10px",
+                overflowX: "auto",
+                WebkitOverflowScrolling: "touch"
+              }}>
                 {listing.images.slice(1).map((img, idx) => (
                   <img
                     key={idx}
                     src={img}
                     alt={`${listing.title} ${idx + 2}`}
                     style={{
-                      width: "100px",
-                      height: "100px",
+                      width: "80px",
+                      height: "80px",
+                      minWidth: "80px",
                       objectFit: "cover",
                       borderRadius: "4px",
                       cursor: "pointer"

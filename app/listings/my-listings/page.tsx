@@ -106,7 +106,7 @@ export default function MyListingsPage() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: "1200px", margin: "50px auto", padding: "20px" }}>
+      <div style={{ maxWidth: "1200px", margin: "20px auto", padding: "15px" }}>
         <p>Loading...</p>
       </div>
     );
@@ -117,15 +117,22 @@ export default function MyListingsPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "50px auto", padding: "20px" }}>
+    <div style={{ maxWidth: "1200px", margin: "20px auto", padding: "15px" }}>
       <div style={{ marginBottom: "30px" }}>
         <Link href="/" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
           ← Back to all listings
         </Link>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-        <h1>My Listings</h1>
+      <div style={{
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "15px",
+        marginBottom: "30px"
+      }}>
+        <h1 style={{ margin: 0, fontSize: "clamp(24px, 5vw, 32px)" }}>My Listings</h1>
         <Link href="/listings/create" style={{
           padding: "10px 20px",
           backgroundColor: "#007bff",
@@ -162,17 +169,26 @@ export default function MyListingsPage() {
               style={{
                 border: "1px solid #ddd",
                 borderRadius: "8px",
-                padding: "20px",
+                padding: "15px",
                 display: "flex",
-                gap: "20px"
+                flexDirection: "column",
+                gap: "15px"
               }}
             >
+              <style jsx>{`
+                @media (min-width: 640px) {
+                  .listing-container {
+                    flex-direction: row !important;
+                  }
+                }
+              `}</style>
               {listing.images[0] && (
                 <img
                   src={listing.images[0]}
                   alt={listing.title}
                   style={{
-                    width: "150px",
+                    width: "100%",
+                    maxWidth: "150px",
                     height: "150px",
                     objectFit: "cover",
                     borderRadius: "8px"
@@ -228,7 +244,7 @@ export default function MyListingsPage() {
                   Posted: {new Date(listing.createdAt).toLocaleDateString()}
                 </p>
 
-                <div style={{ display: "flex", gap: "10px", marginTop: "15px" }}>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "15px" }}>
                   <Link
                     href={`/listings/${listing.id}`}
                     style={{
@@ -237,7 +253,8 @@ export default function MyListingsPage() {
                       color: "white",
                       textDecoration: "none",
                       borderRadius: "4px",
-                      fontSize: "14px"
+                      fontSize: "14px",
+                      whiteSpace: "nowrap"
                     }}
                   >
                     View
@@ -252,7 +269,8 @@ export default function MyListingsPage() {
                       border: "none",
                       borderRadius: "4px",
                       cursor: "pointer",
-                      fontSize: "14px"
+                      fontSize: "14px",
+                      whiteSpace: "nowrap"
                     }}
                   >
                     Mark as {listing.status === "available" ? "Unavailable" : "Available"}
@@ -267,7 +285,8 @@ export default function MyListingsPage() {
                       border: "none",
                       borderRadius: "4px",
                       cursor: "pointer",
-                      fontSize: "14px"
+                      fontSize: "14px",
+                      whiteSpace: "nowrap"
                     }}
                   >
                     Delete

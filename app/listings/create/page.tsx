@@ -30,7 +30,7 @@ export default function CreateListingPage() {
 
   if (isPending) {
     return (
-      <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px", textAlign: "center" }}>
+      <div style={{ maxWidth: "600px", margin: "20px auto", padding: "15px", textAlign: "center" }}>
         <p>Loading...</p>
       </div>
     );
@@ -52,7 +52,7 @@ export default function CreateListingPage() {
     // Check file sizes (4MB max per file)
     const oversizedFiles = files.filter(f => f.size > 4 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      setError("Each image must be less than 4MB");
+      setError("Each image must be less than 8MB");
       return;
     }
 
@@ -142,12 +142,12 @@ export default function CreateListingPage() {
   };
 
   return (
-    <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px" }}>
+    <div style={{ maxWidth: "600px", margin: "20px auto", padding: "15px" }}>
       <Link href="/" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
         ← Back to listings
       </Link>
 
-      <h1>Create New Listing</h1>
+      <h1 style={{ fontSize: "clamp(24px, 5vw, 32px)" }}>Create New Listing</h1>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         <div>

@@ -55,10 +55,35 @@ export default function Page() {
   };
 
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
-        <h1>Campus Marketplace</h1>
-        <div style={{ display: "flex", gap: "10px" }}>
+    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "15px" }}>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .header-container {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .nav-buttons {
+            justify-content: center !important;
+          }
+          .nav-buttons a, .nav-buttons button {
+            flex: 1 1 auto;
+            min-width: 120px;
+          }
+        }
+      `}</style>
+      <div className="header-container" style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "20px",
+        marginBottom: "30px"
+      }}>
+        <h1 style={{ margin: 0 }}>Campus Marketplace</h1>
+        <div className="nav-buttons" style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "10px"
+        }}>
           {session && (
             <>
               <Link href="/listings/create" style={{
@@ -148,7 +173,7 @@ export default function Page() {
 
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(min(300px, 100%), 1fr))",
         gap: "20px"
       }}>
         {listings.map((listing) => (

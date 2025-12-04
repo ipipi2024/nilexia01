@@ -57,8 +57,8 @@ export default function SignUpPage() {
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
-            <h1 style={{ marginBottom: "20px" }}>Sign Up</h1>
+        <div style={{ maxWidth: "400px", margin: "20px auto", padding: "15px" }}>
+            <h1 style={{ marginBottom: "20px", fontSize: "clamp(24px, 5vw, 32px)" }}>Sign Up</h1>
             <form onSubmit={handleSignUp} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div>
                     <label htmlFor="name" style={{ display: "block", marginBottom: "5px" }}>

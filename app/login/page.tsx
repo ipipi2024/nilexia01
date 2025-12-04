@@ -49,8 +49,8 @@ function LoginForm() {
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
-            <h1 style={{ marginBottom: "20px" }}>Login</h1>
+        <div style={{ maxWidth: "400px", margin: "20px auto", padding: "15px" }}>
+            <h1 style={{ marginBottom: "20px", fontSize: "clamp(24px, 5vw, 32px)" }}>Login</h1>
             <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                 <div>
                     <label htmlFor="email" style={{ display: "block", marginBottom: "5px" }}>

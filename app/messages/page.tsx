@@ -80,7 +80,7 @@ export default function ConversationsPage() {
 
   if (isPending || loading) {
     return (
-      <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
+      <div style={{ maxWidth: "800px", margin: "20px auto", padding: "15px" }}>
         <p>Loading...</p>
       </div>
     );
@@ -91,9 +91,16 @@ export default function ConversationsPage() {
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
-      <div style={{ marginBottom: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h1>Messages</h1>
+    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "15px" }}>
+      <div style={{
+        marginBottom: "30px",
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "15px"
+      }}>
+        <h1 style={{ margin: 0, fontSize: "clamp(24px, 5vw, 32px)" }}>Messages</h1>
         <Link href="/" style={{
           padding: "10px 20px",
           backgroundColor: "#6c757d",

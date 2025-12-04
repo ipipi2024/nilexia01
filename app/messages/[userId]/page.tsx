@@ -135,19 +135,26 @@ export default function ChatPage() {
 
   if (isPending || loading) {
     return (
-      <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
+      <div style={{ maxWidth: "800px", margin: "20px auto", padding: "15px" }}>
         <p>Loading...</p>
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px", height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ marginBottom: "20px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "15px", height: "100vh", display: "flex", flexDirection: "column" }}>
+      <div style={{
+        marginBottom: "20px",
+        display: "flex",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: "10px"
+      }}>
         <Link href="/messages" style={{ color: "#007bff", textDecoration: "none" }}>
           ← Back to conversations
         </Link>
-        {otherUser && <h2 style={{ margin: 0 }}>Chat with {otherUser.name}</h2>}
+        {otherUser && <h2 style={{ margin: 0, fontSize: "clamp(18px, 4vw, 24px)" }}>Chat with {otherUser.name}</h2>}
       </div>
 
       {error && (
