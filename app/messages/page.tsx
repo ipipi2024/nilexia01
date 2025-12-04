@@ -118,7 +118,7 @@ export default function ConversationsPage() {
           <p style={{ color: "#999" }}>
             Start messaging other users from their listings or profiles
           </p>
-          <Link href="/listings" style={{
+          <Link href="/" style={{
             display: "inline-block",
             marginTop: "20px",
             padding: "10px 20px",

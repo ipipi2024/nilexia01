@@ -80,7 +80,7 @@ export default function DashboardClient({ initialSession }: DashboardClientProps
                 <h3 style={{ marginBottom: "15px" }}>Quick Links</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     <a
-                        href="/listings"
+                        href="/"
                         style={{
                             padding: "12px 20px",
                             backgroundColor: "#007bff",
@@ -132,13 +132,6 @@ export default function DashboardClient({ initialSession }: DashboardClientProps
                         Messages
                     </a>
                 </div>
-            </div>
-
-            <div style={{ backgroundColor: "#e9ecef", padding: "20px", borderRadius: "8px" }}>
-                <h3 style={{ marginBottom: "15px" }}>Session Information</h3>
-                <pre style={{ backgroundColor: "#fff", padding: "15px", borderRadius: "4px", overflow: "auto" }}>
-                    {JSON.stringify(initialSession, null, 2)}
-                </pre>
             </div>
         </div>
     );

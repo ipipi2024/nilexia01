@@ -66,7 +66,7 @@ export default function ListingDetailPage() {
     return (
       <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
         <p style={{ color: "red" }}>{error || "Listing not found"}</p>
-        <Link href="/listings" style={{ color: "#007bff" }}>
+        <Link href="/" style={{ color: "#007bff" }}>
           ← Back to listings
         </Link>
       </div>
@@ -75,7 +75,7 @@ export default function ListingDetailPage() {
 
   return (
     <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
-      <Link href="/listings" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
+      <Link href="/" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
         ← Back to listings
       </Link>
 

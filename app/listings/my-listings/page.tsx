@@ -115,7 +115,7 @@ export default function MyListingsPage() {
   return (
     <div style={{ maxWidth: "1200px", margin: "50px auto", padding: "20px" }}>
       <div style={{ marginBottom: "30px" }}>
-        <Link href="/listings" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
+        <Link href="/" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
           ← Back to all listings
         </Link>
       </div>
