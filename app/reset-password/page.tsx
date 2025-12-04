@@ -11,6 +11,7 @@ function ResetPasswordForm() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [emailVerified, setEmailVerified] = useState(false);
     const router = useRouter();
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
@@ -43,6 +44,7 @@ function ResetPasswordForm() {
                         console.error("Failed to verify email via reset link:", data.error);
                     } else {
                         console.log("Email verified via reset link:", data.message);
+                        setEmailVerified(true);
                     }
                 } catch (err) {
                     console.error("Error verifying email via reset link:", err);
@@ -114,6 +116,20 @@ function ResetPasswordForm() {
     return (
         <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
             <h1 style={{ marginBottom: "20px" }}>Reset Password</h1>
+
+            {emailVerified && (
+                <div style={{
+                    padding: "15px",
+                    backgroundColor: "#d1ecf1",
+                    color: "#0c5460",
+                    borderRadius: "4px",
+                    marginBottom: "20px"
+                }}>
+                    <p style={{ margin: 0 }}>
+                        Your email has been verified.
+                    </p>
+                </div>
+            )}
 
             {success ? (
                 <div style={{
