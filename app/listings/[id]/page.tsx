@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import MessageButton from "@/app/components/MessageButton";
+import { useSession } from "@/app/lib/auth-client";
 
 interface Listing {
   id: string;
@@ -23,6 +25,7 @@ interface Listing {
 export default function ListingDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -163,12 +166,15 @@ export default function ListingDetailPage() {
             <p style={{ margin: "5px 0" }}>
               <strong>Name:</strong> {listing.user.name}
             </p>
-            <p style={{ margin: "5px 0" }}>
+            <p style={{ margin: "5px 0 15px 0" }}>
               <strong>Email:</strong>{" "}
               <a href={`mailto:${listing.user.email}`} style={{ color: "#007bff" }}>
                 {listing.user.email}
               </a>
             </p>
+            {session && session.user.id !== listing.user.id && (
+              <MessageButton userId={listing.user.id} userName={listing.user.name} />
+            )}
           </div>
         )}
 

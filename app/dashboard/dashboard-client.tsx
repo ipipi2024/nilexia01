@@ -118,6 +118,19 @@ export default function DashboardClient({ initialSession }: DashboardClientProps
                     >
                         My Listings
                     </a>
+                    <a
+                        href="/messages"
+                        style={{
+                            padding: "12px 20px",
+                            backgroundColor: "#17a2b8",
+                            color: "white",
+                            textDecoration: "none",
+                            borderRadius: "4px",
+                            textAlign: "center",
+                        }}
+                    >
+                        Messages
+                    </a>
                 </div>
             </div>
 

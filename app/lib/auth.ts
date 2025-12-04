@@ -3,6 +3,7 @@ import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import client from "../lib/mongodb";
 import { ensureSessionCleanupRunsOnce } from "./session-cleanup";
 import { ensureListingIndexesRunOnce } from "./listing-init";
+import { ensureMessageIndexesRunOnce } from "./message-init";
 import { sendEmail } from "./email";
 import { ObjectId } from "mongodb";
 import { APIError } from "better-auth/api";
@@ -17,6 +18,10 @@ ensureSessionCleanupRunsOnce();
 // Setup listing collection indexes
 // We intentionally do NOT await this; it can run in the background.
 ensureListingIndexesRunOnce();
+
+// Setup message collection indexes
+// We intentionally do NOT await this; it can run in the background.
+ensureMessageIndexesRunOnce();
 
 // Allowed email domains for Florida Tech community
 const ALLOWED_DOMAINS = ["@fit.edu", "@my.fit.edu"];
