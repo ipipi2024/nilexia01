@@ -34,6 +34,8 @@ export default function SignUpPage() {
                 name,
                 email,
                 password,
+
+                
             },
             {
                 onRequest: () => {
@@ -85,7 +87,7 @@ export default function SignUpPage() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="yourname@fit.edu or yourname@my.fit.edu"
+                        placeholder="username@my.fit.edu"
                         required
                         style={{
                             width: "100%",
@@ -94,7 +96,7 @@ export default function SignUpPage() {
                             borderRadius: "4px",
                         }}
                     />
-                    <small style={{ color: "#666" }}>Use your @fit.edu or @my.fit.edu email</small>
+                    
                 </div>
                 <div>
                     <label htmlFor="password" style={{ display: "block", marginBottom: "5px" }}>

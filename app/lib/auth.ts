@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "better-auth/adapters/mongodb";
 import client from "../lib/mongodb";
 import { ensureSessionCleanupRunsOnce } from "./session-cleanup";
+import { ensureListingIndexesRunOnce } from "./listing-init";
 import { sendEmail } from "./email";
 import { ObjectId } from "mongodb";
 import { APIError } from "better-auth/api";
@@ -12,6 +13,10 @@ const db = client.db(); // Uses default database from connection string
 // Setup automatic session cleanup via MongoDB TTL index
 // We intentionally do NOT await this; it can run in the background.
 ensureSessionCleanupRunsOnce();
+
+// Setup listing collection indexes
+// We intentionally do NOT await this; it can run in the background.
+ensureListingIndexesRunOnce();
 
 // Allowed email domains for Florida Tech community
 const ALLOWED_DOMAINS = ["@fit.edu", "@my.fit.edu"];

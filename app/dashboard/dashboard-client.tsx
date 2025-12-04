@@ -76,6 +76,51 @@ export default function DashboardClient({ initialSession }: DashboardClientProps
                 </div>
             </div>
 
+            <div style={{ backgroundColor: "#f8f9fa", padding: "20px", borderRadius: "8px", marginBottom: "20px" }}>
+                <h3 style={{ marginBottom: "15px" }}>Quick Links</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    <a
+                        href="/listings"
+                        style={{
+                            padding: "12px 20px",
+                            backgroundColor: "#007bff",
+                            color: "white",
+                            textDecoration: "none",
+                            borderRadius: "4px",
+                            textAlign: "center",
+                        }}
+                    >
+                        Browse Campus Marketplace
+                    </a>
+                    <a
+                        href="/listings/create"
+                        style={{
+                            padding: "12px 20px",
+                            backgroundColor: "#28a745",
+                            color: "white",
+                            textDecoration: "none",
+                            borderRadius: "4px",
+                            textAlign: "center",
+                        }}
+                    >
+                        Create New Listing
+                    </a>
+                    <a
+                        href="/listings/my-listings"
+                        style={{
+                            padding: "12px 20px",
+                            backgroundColor: "#6c757d",
+                            color: "white",
+                            textDecoration: "none",
+                            borderRadius: "4px",
+                            textAlign: "center",
+                        }}
+                    >
+                        My Listings
+                    </a>
+                </div>
+            </div>
+
             <div style={{ backgroundColor: "#e9ecef", padding: "20px", borderRadius: "8px" }}>
                 <h3 style={{ marginBottom: "15px" }}>Session Information</h3>
                 <pre style={{ backgroundColor: "#fff", padding: "15px", borderRadius: "4px", overflow: "auto" }}>

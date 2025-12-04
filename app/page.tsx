@@ -14,45 +14,75 @@ export default function Page() {
             ) : session ? (
                 <div>
                     <p style={{ marginBottom: "20px" }}>Welcome back, {session.user.name}!</p>
+                    <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
+                        <a
+                            href="/dashboard"
+                            style={{
+                                display: "inline-block",
+                                padding: "10px 20px",
+                                backgroundColor: "#007bff",
+                                color: "white",
+                                textDecoration: "none",
+                                borderRadius: "4px",
+                            }}
+                        >
+                            Go to Dashboard
+                        </a>
+                        <a
+                            href="/listings"
+                            style={{
+                                display: "inline-block",
+                                padding: "10px 20px",
+                                backgroundColor: "#28a745",
+                                color: "white",
+                                textDecoration: "none",
+                                borderRadius: "4px",
+                            }}
+                        >
+                            Browse Marketplace
+                        </a>
+                    </div>
+                </div>
+            ) : (
+                <div>
+                    <div style={{ display: "flex", gap: "15px", justifyContent: "center", marginBottom: "20px" }}>
+                        <a
+                            href="/login"
+                            style={{
+                                padding: "10px 20px",
+                                backgroundColor: "#007bff",
+                                color: "white",
+                                textDecoration: "none",
+                                borderRadius: "4px",
+                            }}
+                        >
+                            Login
+                        </a>
+                        <a
+                            href="/signup"
+                            style={{
+                                padding: "10px 20px",
+                                backgroundColor: "#28a745",
+                                color: "white",
+                                textDecoration: "none",
+                                borderRadius: "4px",
+                            }}
+                        >
+                            Sign Up
+                        </a>
+                    </div>
                     <a
-                        href="/dashboard"
+                        href="/listings"
                         style={{
                             display: "inline-block",
                             padding: "10px 20px",
-                            backgroundColor: "#007bff",
+                            backgroundColor: "#6c757d",
                             color: "white",
                             textDecoration: "none",
                             borderRadius: "4px",
                         }}
                     >
-                        Go to Dashboard
-                    </a>
-                </div>
-            ) : (
-                <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
-                    <a
-                        href="/login"
-                        style={{
-                            padding: "10px 20px",
-                            backgroundColor: "#007bff",
-                            color: "white",
-                            textDecoration: "none",
-                            borderRadius: "4px",
-                        }}
-                    >
-                        Login
-                    </a>
-                    <a
-                        href="/signup"
-                        style={{
-                            padding: "10px 20px",
-                            backgroundColor: "#28a745",
-                            color: "white",
-                            textDecoration: "none",
-                            borderRadius: "4px",
-                        }}
-                    >
-                        Sign Up
+                        Browse Marketplace (No Login Required)
                     </a>
                 </div>
             )}
