@@ -52,7 +52,7 @@ export default function CreateListingPage() {
     // Check file sizes (4MB max per file)
     const oversizedFiles = files.filter(f => f.size > 4 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      setError("Each image must be less than 8MB");
+      setError("Each image must be less than 16MB");
       return;
     }
 

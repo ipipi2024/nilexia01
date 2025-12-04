@@ -9,7 +9,7 @@ export const ourFileRouter = {
   // Image uploader for listings
   listingImageUploader: f({
     image: {
-      maxFileSize: "8MB",
+      maxFileSize: "16MB",
       maxFileCount: 5,
     },
   })
