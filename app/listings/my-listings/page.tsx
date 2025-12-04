@@ -42,7 +42,9 @@ export default function MyListingsPage() {
   const fetchMyListings = async (userId: string) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/listings");
+      const response = await fetch("/api/listings?includeUnavailable=true", {
+        credentials: "include",
+      });
 
       if (response.ok) {
         const data = await response.json();

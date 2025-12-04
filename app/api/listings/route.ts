@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
  *   - type: Filter by listing type (sell, donate, rent)
  *   - limit: Number of results to return (default: 20)
  *   - skip: Number of results to skip for pagination (default: 0)
+ *   - includeUnavailable: Include unavailable listings (requires authentication, shows only user's own listings)
  */
 export async function GET(request: NextRequest) {
   try {
@@ -91,9 +92,15 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type");
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100); // Max 100
     const skip = parseInt(searchParams.get("skip") || "0");
+    const includeUnavailable = searchParams.get("includeUnavailable") === "true";
 
     // Build query filter
-    const filter: any = { status: "available" };
+    const filter: any = {};
+
+    // Only filter by status if not requesting unavailable listings
+    if (!includeUnavailable) {
+      filter.status = "available";
+    }
 
     if (type && ["sell", "donate", "rent"].includes(type)) {
       filter.type = type;
