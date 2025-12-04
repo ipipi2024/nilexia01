@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { authClient } from "../lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -11,6 +11,8 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const returnUrl = searchParams.get("returnUrl");
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +30,8 @@ export default function LoginPage() {
                     setLoading(true);
                 },
                 onSuccess: () => {
-                    router.push("/");
+                    // Redirect to returnUrl if provided, otherwise go to homepage
+                    router.push(returnUrl || "/");
                 },
                 onError: (ctx) => {
                     // Handle email verification errors specifically

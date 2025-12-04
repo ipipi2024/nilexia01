@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSession, signOut } from "@/app/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface Listing {
   id: string;
@@ -15,10 +17,17 @@ interface Listing {
 }
 
 export default function Page() {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<"all" | "sell" | "donate" | "rent">("all");
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.refresh();
+  };
 
   useEffect(() => {
     fetchListings();
@@ -50,33 +59,73 @@ export default function Page() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" }}>
         <h1>Campus Marketplace</h1>
         <div style={{ display: "flex", gap: "10px" }}>
-          <Link href="/listings/create" style={{
-            padding: "10px 20px",
-            backgroundColor: "#007bff",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "4px"
-          }}>
-            Create Listing
-          </Link>
-          <Link href="/listings/my-listings" style={{
-            padding: "10px 20px",
-            backgroundColor: "#6c757d",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "4px"
-          }}>
-            My Listings
-          </Link>
-          <Link href="/messages" style={{
-            padding: "10px 20px",
-            backgroundColor: "#17a2b8",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "4px"
-          }}>
-            Messages
-          </Link>
+          {session && (
+            <>
+              <Link href="/listings/create" style={{
+                padding: "10px 20px",
+                backgroundColor: "#007bff",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "4px"
+              }}>
+                Create Listing
+              </Link>
+              <Link href="/listings/my-listings" style={{
+                padding: "10px 20px",
+                backgroundColor: "#6c757d",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "4px"
+              }}>
+                My Listings
+              </Link>
+              <Link href="/messages" style={{
+                padding: "10px 20px",
+                backgroundColor: "#17a2b8",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "4px"
+              }}>
+                Messages
+              </Link>
+              <button
+                onClick={handleSignOut}
+                style={{
+                  padding: "10px 20px",
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontSize: "16px"
+                }}
+              >
+                Sign Out
+              </button>
+            </>
+          )}
+          {!session && (
+            <>
+              <Link href="/login" style={{
+                padding: "10px 20px",
+                backgroundColor: "#007bff",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "4px"
+              }}>
+                Log In
+              </Link>
+              <Link href="/signup" style={{
+                padding: "10px 20px",
+                backgroundColor: "#28a745",
+                color: "white",
+                textDecoration: "none",
+                borderRadius: "4px"
+              }}>
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </div>
 

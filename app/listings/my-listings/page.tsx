@@ -112,6 +112,10 @@ export default function MyListingsPage() {
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
     <div style={{ maxWidth: "1200px", margin: "50px auto", padding: "20px" }}>
       <div style={{ marginBottom: "30px" }}>

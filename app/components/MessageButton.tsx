@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useSession } from "@/app/lib/auth-client";
 
 interface MessageButtonProps {
   userId: string;
@@ -9,9 +10,16 @@ interface MessageButtonProps {
 
 export default function MessageButton({ userId, userName }: MessageButtonProps) {
   const router = useRouter();
+  const { data: session } = useSession();
 
   const handleClick = () => {
-    router.push(`/messages/${userId}`);
+    if (!session) {
+      // Redirect to login with return URL
+      const returnUrl = encodeURIComponent(`/messages/${userId}`);
+      router.push(`/login?returnUrl=${returnUrl}`);
+    } else {
+      router.push(`/messages/${userId}`);
+    }
   };
 
   return (

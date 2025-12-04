@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUploadThing } from "@/app/lib/uploadthing-utils";
+import { useSession } from "@/app/lib/auth-client";
 
 export default function CreateListingPage() {
   const router = useRouter();
+  const { data: session, isPending } = useSession();
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -19,6 +21,24 @@ export default function CreateListingPage() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
   const { startUpload } = useUploadThing("listingImageUploader");
+
+  useEffect(() => {
+    if (!isPending && !session) {
+      router.push("/login");
+    }
+  }, [session, isPending, router]);
+
+  if (isPending) {
+    return (
+      <div style={{ maxWidth: "600px", margin: "50px auto", padding: "20px", textAlign: "center" }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (!session) {
+    return null;
+  }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

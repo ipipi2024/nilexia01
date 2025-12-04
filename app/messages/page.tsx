@@ -86,6 +86,10 @@ export default function ConversationsPage() {
     );
   }
 
+  if (!session) {
+    return null;
+  }
+
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
       <div style={{ marginBottom: "30px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>

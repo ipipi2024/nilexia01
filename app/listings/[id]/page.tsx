@@ -172,7 +172,7 @@ export default function ListingDetailPage() {
                 {listing.user.email}
               </a>
             </p>
-            {session && session.user.id !== listing.user.id && (
+            {(!session || session.user.id !== listing.user.id) && (
               <MessageButton userId={listing.user.id} userName={listing.user.name} />
             )}
           </div>
