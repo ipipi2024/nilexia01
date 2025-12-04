@@ -179,7 +179,22 @@ export default function ListingDetailPage() {
                 {listing.user.email}
               </a>
             </p>
-            {(!session || session.user.id !== listing.user.id) && (
+            {session && session.user.id === listing.user.id ? (
+              <Link
+                href={`/listings/${listing.id}/edit`}
+                style={{
+                  display: "inline-block",
+                  padding: "10px 20px",
+                  backgroundColor: "#007bff",
+                  color: "white",
+                  textDecoration: "none",
+                  borderRadius: "4px",
+                  fontWeight: "bold"
+                }}
+              >
+                Edit Listing
+              </Link>
+            ) : (
               <MessageButton userId={listing.user.id} userName={listing.user.name} />
             )}
           </div>

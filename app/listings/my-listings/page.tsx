@@ -260,6 +260,21 @@ export default function MyListingsPage() {
                     View
                   </Link>
 
+                  <Link
+                    href={`/listings/${listing.id}/edit`}
+                    style={{
+                      padding: "8px 16px",
+                      backgroundColor: "#17a2b8",
+                      color: "white",
+                      textDecoration: "none",
+                      borderRadius: "4px",
+                      fontSize: "14px",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    Edit
+                  </Link>
+
                   <button
                     onClick={() => toggleStatus(listing)}
                     style={{
