@@ -1,5 +1,5 @@
 # setting path for evan hall computer to use nodejs
-$env:PATH = "C:\Users\ipipi2022\Desktop\node-v24.11.1-win-x64\node-v24.11.1-win-x64;$env:PATH"
+$env:PATH = "C:\Users\ipipi2022\Desktop\node-v24.12.0-win-x64;$env:PATH"
 
 # git commands
 
