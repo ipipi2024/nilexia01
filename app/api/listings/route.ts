@@ -101,9 +101,10 @@ export async function GET(request: NextRequest) {
     // Build query filter
     const filter: any = {};
 
-    // Only filter by status if not requesting unavailable listings
+    // Show available and completed items (sold/donated/rented) by default
+    // Hide only "unavailable" items unless specifically requested
     if (!includeUnavailable) {
-      filter.status = "available";
+      filter.status = { $in: ["available", "sold", "donated", "rented"] };
     }
 
     if (type && ["sell", "donate", "rent"].includes(type)) {
