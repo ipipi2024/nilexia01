@@ -12,7 +12,7 @@ interface Listing {
   type: "sell" | "donate" | "rent";
   price: number | null;
   images: string[];
-  status: string;
+  status: "available" | "unavailable" | "sold" | "donated" | "rented";
   createdAt: string;
 }
 
@@ -23,7 +23,7 @@ export default function MyListingsPage() {
   const [error, setError] = useState("");
   const [user, setUser] = useState<any>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editStatus, setEditStatus] = useState<"available" | "unavailable">("available");
+  const [editStatus, setEditStatus] = useState<"available" | "unavailable" | "sold" | "donated" | "rented">("available");
 
   useEffect(() => {
     checkAuth();
@@ -82,11 +82,9 @@ export default function MyListingsPage() {
     }
   };
 
-  const toggleStatus = async (listing: Listing) => {
-    const newStatus = listing.status === "available" ? "unavailable" : "available";
-
+  const updateStatus = async (id: string, newStatus: string) => {
     try {
-      const response = await fetch(`/api/listings/${listing.id}`, {
+      const response = await fetch(`/api/listings/${id}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +95,7 @@ export default function MyListingsPage() {
 
       if (response.ok) {
         const updated = await response.json();
-        setListings(listings.map((l) => (l.id === listing.id ? updated : l)));
+        setListings(listings.map((l) => (l.id === id ? updated : l)));
       } else {
         alert("Failed to update status");
       }
@@ -277,11 +275,12 @@ export default function MyListingsPage() {
                     Edit
                   </Link>
 
-                  <button
-                    onClick={() => toggleStatus(listing)}
+                  <select
+                    value={listing.status}
+                    onChange={(e) => updateStatus(listing.id, e.target.value)}
                     style={{
                       padding: "8px 16px",
-                      backgroundColor: listing.status === "available" ? "#6c757d" : "#28a745",
+                      backgroundColor: "#17a2b8",
                       color: "white",
                       border: "none",
                       borderRadius: "4px",
@@ -290,8 +289,12 @@ export default function MyListingsPage() {
                       whiteSpace: "nowrap"
                     }}
                   >
-                    Mark as {listing.status === "available" ? "Unavailable" : "Available"}
-                  </button>
+                    <option value="available">Available</option>
+                    <option value="unavailable">Unavailable</option>
+                    <option value="sold" disabled={listing.type !== "sell"}>Sold</option>
+                    <option value="donated" disabled={listing.type !== "donate"}>Donated</option>
+                    <option value="rented" disabled={listing.type !== "rent"}>Rented</option>
+                  </select>
 
                   <button
                     onClick={() => deleteListing(listing.id)}

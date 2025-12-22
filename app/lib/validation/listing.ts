@@ -25,7 +25,7 @@ export interface UpdateListingInput {
   price?: number | null;
   rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images?: string[];
-  status?: "available" | "unavailable";
+  status?: "available" | "unavailable" | "sold" | "donated" | "rented";
 }
 
 // Sanitize input to prevent injection attacks
@@ -158,8 +158,8 @@ export function validateUpdateListing(data: any): ValidationResult {
 
   // Validate status if provided
   if (data.status !== undefined) {
-    if (!["available", "unavailable"].includes(data.status)) {
-      errors.push({ field: "status", message: "Status must be 'available' or 'unavailable'" });
+    if (!["available", "unavailable", "sold", "donated", "rented"].includes(data.status)) {
+      errors.push({ field: "status", message: "Status must be 'available', 'unavailable', 'sold', 'donated', or 'rented'" });
     }
   }
 

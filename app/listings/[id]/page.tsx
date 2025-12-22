@@ -14,7 +14,7 @@ interface Listing {
   price: number | null;
   rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images: string[];
-  status: string;
+  status: "available" | "unavailable" | "sold" | "donated" | "rented";
   createdAt: string;
   user?: {
     id: string;
@@ -203,7 +203,23 @@ export default function ListingDetailPage() {
 
         <div style={{ marginTop: "20px", color: "#666", fontSize: "14px" }}>
           <p>Posted on: {new Date(listing.createdAt).toLocaleDateString()}</p>
-          <p>Status: {listing.status}</p>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span>Status:</span>
+            <span style={{
+              display: "inline-block",
+              padding: "4px 12px",
+              backgroundColor:
+                listing.status === "available" ? "#28a745" :
+                ["sold", "donated", "rented"].includes(listing.status) ? "#6c757d" : "#6c757d",
+              color: "white",
+              borderRadius: "4px",
+              fontSize: "12px",
+              fontWeight: "bold",
+              textTransform: "uppercase"
+            }}>
+              {listing.status}
+            </span>
+          </div>
         </div>
       </div>
     </div>

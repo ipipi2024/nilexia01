@@ -14,7 +14,7 @@ export interface Listing {
   price: number | null;
   rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images: string[];
-  status: "available" | "unavailable";
+  status: "available" | "unavailable" | "sold" | "donated" | "rented";
   createdAt: Date;
   updatedAt: Date;
 }

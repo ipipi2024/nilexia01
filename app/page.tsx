@@ -13,7 +13,7 @@ interface Listing {
   price: number | null;
   rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images: string[];
-  status: string;
+  status: "available" | "unavailable" | "sold" | "donated" | "rented";
   createdAt: string;
 }
 
@@ -245,7 +245,7 @@ export default function Page() {
 
               <h3 style={{ margin: "0 0 10px 0" }}>{listing.title}</h3>
 
-              <div style={{ marginBottom: "10px" }}>
+              <div style={{ marginBottom: "10px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 <span style={{
                   display: "inline-block",
                   padding: "4px 8px",
@@ -259,6 +259,34 @@ export default function Page() {
                   {listing.type === "sell" ? "For Sale" :
                    listing.type === "donate" ? "Free" : "For Rent"}
                 </span>
+
+                {/* Activity Status Badge - Show for completed items */}
+                {["sold", "donated", "rented"].includes(listing.status) && (
+                  <span style={{
+                    display: "inline-block",
+                    padding: "4px 8px",
+                    backgroundColor: "#6c757d",
+                    color: "white",
+                    borderRadius: "4px",
+                    fontSize: "12px",
+                    fontWeight: "bold"
+                  }}>
+                    {listing.status.toUpperCase()}
+                  </span>
+                )}
+
+                {listing.status === "unavailable" && (
+                  <span style={{
+                    display: "inline-block",
+                    padding: "4px 8px",
+                    backgroundColor: "#6c757d",
+                    color: "white",
+                    borderRadius: "4px",
+                    fontSize: "12px"
+                  }}>
+                    UNAVAILABLE
+                  </span>
+                )}
               </div>
 
               <p style={{
