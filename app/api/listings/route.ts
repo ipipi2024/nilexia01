@@ -88,6 +88,9 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
+    // Require authentication
+    await requireAuth();
+
     // Parse query parameters
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
@@ -124,8 +127,16 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json(transformedListings, { status: 200 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching listings:", error);
+
+    if (error.message === "UNAUTHORIZED") {
+      return NextResponse.json(
+        { error: "Unauthorized. Please sign in to view listings." },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json(
       { error: "Internal server error. Please try again later." },
       { status: 500 }

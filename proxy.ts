@@ -1,49 +1,74 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { auth } from "@/app/lib/auth";
-import { headers } from "next/headers";
-import { getSessionCookie } from "better-auth/cookies";
 
-export async function proxy(request: NextRequest) {
-    const isApiRoute = request.nextUrl.pathname.startsWith("/api/");
+// Routes that don't require authentication
+const publicRoutes = [
+  "/login",
+  "/signup",
+  "/forgot-password",
+  "/reset-password",
+  "/api/verify-via-reset-link",
+];
 
-    // Step 1: Fast cookie check - avoid DB query for anonymous users
-    const sessionCookie = getSessionCookie(request);
-    if (!sessionCookie) {
-        // API routes: return 401 JSON response
-        if (isApiRoute) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
-        }
-        // Page routes: redirect to login
-        return NextResponse.redirect(new URL("/login", request.url));
-    }
+/**
+ * Check if a pathname matches the public routes
+ */
+function isPublicRoute(pathname: string): boolean {
+  // Check exact matches
+  if (publicRoutes.includes(pathname)) {
+    return true;
+  }
 
-    // Step 2: Secure validation - verify session is valid
-    const session = await auth.api.getSession({
-        headers: await headers()
-    });
-    if (!session) {
-        // API routes: return 401 JSON response
-        if (isApiRoute) {
-            return NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            );
-        }
-        // Page routes: redirect to login
-        return NextResponse.redirect(new URL("/login", request.url));
-    }
+  // Check if it's a Better Auth endpoint
+  if (pathname.startsWith("/api/auth/")) {
+    return true;
+  }
 
-    // Session is valid, allow request to proceed
-    return NextResponse.next();
+  return false;
 }
 
-// Configure which routes require authentication
+export default async function proxy(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Allow public routes through
+  if (isPublicRoute(pathname)) {
+    return NextResponse.next();
+  }
+
+  // All other routes require authentication
+  try {
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
+
+    // If no valid session, redirect to login
+    if (!session?.user) {
+      // Redirect all routes (both pages and API) to login with returnUrl
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("returnUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // User is authenticated, allow the request to continue
+    return NextResponse.next();
+  } catch (error) {
+    console.error("Middleware auth error:", error);
+
+    // On error, treat as unauthenticated and redirect to login
+    const loginUrl = new URL("/login", request.url);
+    loginUrl.searchParams.set("returnUrl", pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+}
+
+// Configure which routes the proxy should run on
 export const config = {
-    matcher: [
-        "/dashboard/:path*", // Protect all dashboard routes
-        "/api/protected/:path*", // Protect API routes under /api/protected
-    ],
+  matcher: [
+    // Match all paths except:
+    // - _next/* (Next.js internals)
+    // - favicon.ico, other static files
+    // - api/* (API routes handle their own auth)
+    "/((?!api|_next|favicon.ico).*)",
+  ],
 };
