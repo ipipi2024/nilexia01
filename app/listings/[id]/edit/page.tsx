@@ -105,10 +105,10 @@ export default function EditListingPage() {
       return;
     }
 
-    // Check file sizes (4MB max per file)
-    const oversizedFiles = files.filter(f => f.size > 4 * 1024 * 1024);
+    // Check file sizes (16MB max per file)
+    const oversizedFiles = files.filter(f => f.size > 16 * 1024 * 1024);
     if (oversizedFiles.length > 0) {
-      setError("Each image must be less than 4MB");
+      setError("Each image must be less than 16MB");
       return;
     }
 
@@ -394,7 +394,7 @@ export default function EditListingPage() {
           )}
 
           <small style={{ display: "block", marginTop: "10px", color: "#666" }}>
-            Select images from your device (max 4MB each, PNG/JPG)
+            Select images from your device (max 16MB each, PNG/JPG)
           </small>
         </div>
 

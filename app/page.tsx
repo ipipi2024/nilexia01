@@ -23,6 +23,7 @@ export default function Page() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState<"all" | "sell" | "donate" | "rent">("all");
+  const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
 
   const handleSignOut = async () => {
     await signOut();
@@ -32,6 +33,12 @@ export default function Page() {
   useEffect(() => {
     fetchListings();
   }, [filter]);
+
+  useEffect(() => {
+    if (session) {
+      fetchUnreadMessageCount();
+    }
+  }, [session]);
 
   const fetchListings = async () => {
     try {
@@ -51,6 +58,19 @@ export default function Page() {
       setError("Failed to load listings");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUnreadMessageCount = async () => {
+    try {
+      const response = await fetch("/api/messages/conversations");
+      if (response.ok) {
+        const data = await response.json();
+        const total = data.conversations.reduce((sum: number, conv: any) => sum + conv.unreadCount, 0);
+        setTotalUnreadMessages(total);
+      }
+    } catch (err) {
+      // Silently fail - unread count is not critical
     }
   };
 
@@ -109,9 +129,25 @@ export default function Page() {
                 backgroundColor: "#17a2b8",
                 color: "white",
                 textDecoration: "none",
-                borderRadius: "4px"
+                borderRadius: "4px",
+                position: "relative",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px"
               }}>
                 Messages
+                {totalUnreadMessages > 0 && (
+                  <span style={{
+                    backgroundColor: "#dc3545",
+                    color: "white",
+                    padding: "2px 8px",
+                    borderRadius: "12px",
+                    fontSize: "12px",
+                    fontWeight: "bold"
+                  }}>
+                    {totalUnreadMessages}
+                  </span>
+                )}
               </Link>
               <button
                 onClick={handleSignOut}
