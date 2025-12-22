@@ -53,6 +53,7 @@ export async function GET(
             description: 1,
             type: 1,
             price: 1,
+            rentPeriod: 1,
             images: 1,
             status: 1,
             createdAt: 1,
@@ -176,6 +177,10 @@ export async function PATCH(
 
     if (body.status !== undefined) {
       updateData.status = body.status;
+    }
+
+    if (body.rentPeriod !== undefined) {
+      updateData.rentPeriod = body.rentPeriod;
     }
 
     // Update listing

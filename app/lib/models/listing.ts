@@ -12,6 +12,7 @@ export interface Listing {
   description: string;
   type: "sell" | "donate" | "rent";
   price: number | null;
+  rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images: string[];
   status: "available" | "unavailable";
   createdAt: Date;

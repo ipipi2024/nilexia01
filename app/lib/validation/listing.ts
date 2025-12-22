@@ -15,6 +15,7 @@ export interface CreateListingInput {
   description: string;
   type: "sell" | "donate" | "rent";
   price?: number | null;
+  rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images?: string[];
 }
 
@@ -22,6 +23,7 @@ export interface UpdateListingInput {
   title?: string;
   description?: string;
   price?: number | null;
+  rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images?: string[];
   status?: "available" | "unavailable";
 }
@@ -70,6 +72,15 @@ export function validateCreateListing(data: any): ValidationResult {
       errors.push({ field: "price", message: "Price must be a number" });
     } else if (data.price < 0) {
       errors.push({ field: "price", message: "Price must be greater than or equal to 0" });
+    }
+  }
+
+  // Validate rentPeriod for rent type
+  if (data.type === "rent") {
+    if (!data.rentPeriod) {
+      errors.push({ field: "rentPeriod", message: "Rental period is required for 'rent' type" });
+    } else if (!["hour", "day", "week", "month", "year"].includes(data.rentPeriod)) {
+      errors.push({ field: "rentPeriod", message: "Rental period must be 'hour', 'day', 'week', 'month', or 'year'" });
     }
   }
 
@@ -149,6 +160,13 @@ export function validateUpdateListing(data: any): ValidationResult {
   if (data.status !== undefined) {
     if (!["available", "unavailable"].includes(data.status)) {
       errors.push({ field: "status", message: "Status must be 'available' or 'unavailable'" });
+    }
+  }
+
+  // Validate rentPeriod if provided
+  if (data.rentPeriod !== undefined) {
+    if (!["hour", "day", "week", "month", "year"].includes(data.rentPeriod)) {
+      errors.push({ field: "rentPeriod", message: "Rental period must be 'hour', 'day', 'week', 'month', or 'year'" });
     }
   }
 

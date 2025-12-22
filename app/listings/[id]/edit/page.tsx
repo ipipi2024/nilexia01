@@ -21,6 +21,7 @@ export default function EditListingPage() {
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"sell" | "donate" | "rent">("sell");
   const [price, setPrice] = useState("");
+  const [rentPeriod, setRentPeriod] = useState<"hour" | "day" | "week" | "month" | "year">("month");
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
@@ -54,6 +55,7 @@ export default function EditListingPage() {
           setDescription(listing.description);
           setType(listing.type);
           setPrice(listing.price?.toString() || "");
+          setRentPeriod(listing.rentPeriod || "month");
           setUploadedImageUrls(listing.images || []);
           setLoading(false);
         } else {
@@ -168,6 +170,11 @@ export default function EditListingPage() {
           return;
         }
         body.price = priceValue;
+      }
+
+      // Include rentPeriod if rent type
+      if (type === "rent") {
+        body.rentPeriod = rentPeriod;
       }
 
       const response = await fetch(`/api/listings/${listingId}`, {
@@ -295,6 +302,31 @@ export default function EditListingPage() {
                 borderRadius: "4px",
               }}
             />
+          </div>
+        )}
+
+        {type === "rent" && (
+          <div>
+            <label htmlFor="rentPeriod" style={{ display: "block", marginBottom: "5px", fontWeight: "bold" }}>
+              Rental Period *
+            </label>
+            <select
+              id="rentPeriod"
+              value={rentPeriod}
+              onChange={(e) => setRentPeriod(e.target.value as any)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ccc",
+                borderRadius: "4px",
+              }}
+            >
+              <option value="hour">Per Hour</option>
+              <option value="day">Per Day</option>
+              <option value="week">Per Week</option>
+              <option value="month">Per Month</option>
+              <option value="year">Per Year</option>
+            </select>
           </div>
         )}
 

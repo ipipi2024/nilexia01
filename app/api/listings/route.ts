@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       description: sanitizedDescription,
       type: body.type,
       price: body.type === "donate" ? null : body.price,
+      rentPeriod: body.type === "rent" ? body.rentPeriod : undefined,
       images: body.images || [],
       status: "available",
       createdAt: now,

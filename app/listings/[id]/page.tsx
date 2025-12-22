@@ -12,6 +12,7 @@ interface Listing {
   description: string;
   type: "sell" | "donate" | "rent";
   price: number | null;
+  rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images: string[];
   status: string;
   createdAt: string;
@@ -146,7 +147,7 @@ export default function ListingDetailPage() {
         {listing.price !== null && (
           <p style={{ fontSize: "32px", fontWeight: "bold", color: "#28a745", margin: "10px 0" }}>
             ${listing.price}
-            {listing.type === "rent" && <span style={{ fontSize: "16px", color: "#666" }}> /period</span>}
+            {listing.type === "rent" && listing.rentPeriod && <span style={{ fontSize: "16px", color: "#666" }}> /{listing.rentPeriod}</span>}
           </p>
         )}
 
