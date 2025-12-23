@@ -1,3 +1,5 @@
+import NDAGuard from "./components/NDAGuard";
+
 export default function RootLayout({
     children,
   }: {
@@ -5,7 +7,11 @@ export default function RootLayout({
   }) {
     return (
       <html lang="en">
-        <body>{children}</body>
+        <body>
+          <NDAGuard>
+            {children}
+          </NDAGuard>
+        </body>
       </html>
     )
   }
