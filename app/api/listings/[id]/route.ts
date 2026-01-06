@@ -167,6 +167,10 @@ export async function PATCH(
       updateData.description = sanitizeString(body.description);
     }
 
+    if (body.type !== undefined) {
+      updateData.type = body.type;
+    }
+
     if (body.price !== undefined) {
       updateData.price = body.price;
     }

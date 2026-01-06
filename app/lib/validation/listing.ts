@@ -22,6 +22,7 @@ export interface CreateListingInput {
 export interface UpdateListingInput {
   title?: string;
   description?: string;
+  type?: "sell" | "donate" | "rent";
   price?: number | null;
   rentPeriod?: "hour" | "day" | "week" | "month" | "year";
   images?: string[];
@@ -129,6 +130,13 @@ export function validateUpdateListing(data: any): ValidationResult {
       errors.push({ field: "description", message: "Description must be at least 10 characters long" });
     } else if (data.description.trim().length > 1000) {
       errors.push({ field: "description", message: "Description must not exceed 1000 characters" });
+    }
+  }
+
+  // Validate type if provided
+  if (data.type !== undefined) {
+    if (!["sell", "donate", "rent"].includes(data.type)) {
+      errors.push({ field: "type", message: "Type must be 'sell', 'donate', or 'rent'" });
     }
   }
 
