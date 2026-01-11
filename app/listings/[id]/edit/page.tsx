@@ -20,6 +20,7 @@ export default function EditListingPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"sell" | "donate" | "rent">("sell");
+  const [status, setStatus] = useState<"available" | "sold" | "donated" | "rented">("available");
   const [price, setPrice] = useState("");
   const [rentPeriod, setRentPeriod] = useState<"hour" | "day" | "week" | "month" | "year">("month");
   const [uploadedImageUrls, setUploadedImageUrls] = useState<string[]>([]);
@@ -54,6 +55,7 @@ export default function EditListingPage() {
           setTitle(listing.title);
           setDescription(listing.description);
           setType(listing.type);
+          setStatus(listing.status || "available");
           setPrice(listing.price?.toString() || "");
           setRentPeriod(listing.rentPeriod || "month");
           setUploadedImageUrls(listing.images || []);
@@ -97,6 +99,25 @@ export default function EditListingPage() {
       </div>
     );
   }
+
+  const handleTypeChange = (newType: "sell" | "donate" | "rent") => {
+    setType(newType);
+
+    // Map status when type changes
+    if (status === "available") {
+      // Keep as available
+      setStatus("available");
+    } else {
+      // Map to corresponding "completed" status for new type
+      if (newType === "sell") {
+        setStatus("sold");
+      } else if (newType === "rent") {
+        setStatus("rented");
+      } else if (newType === "donate") {
+        setStatus("donated");
+      }
+    }
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -156,6 +177,7 @@ export default function EditListingPage() {
         title,
         description,
         type,
+        status,
         images: uploadedImageUrls,
       };
 
@@ -267,7 +289,7 @@ export default function EditListingPage() {
           <select
             id="type"
             value={type}
-            onChange={(e) => setType(e.target.value as any)}
+            onChange={(e) => handleTypeChange(e.target.value as "sell" | "donate" | "rent")}
             style={{
               width: "100%",
               padding: "10px",
