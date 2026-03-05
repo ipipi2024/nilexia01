@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/app/lib/auth-client";
+import PushNotificationBell from "@/app/components/PushNotificationBell";
 
 interface Conversation {
   conversationId: string;
@@ -101,15 +102,18 @@ export default function ConversationsPage() {
         gap: "15px"
       }}>
         <h1 style={{ margin: 0, fontSize: "clamp(24px, 5vw, 32px)" }}>Messages</h1>
-        <Link href="/" style={{
-          padding: "10px 20px",
-          backgroundColor: "#6c757d",
-          color: "white",
-          textDecoration: "none",
-          borderRadius: "4px"
-        }}>
-          Back to Home
-        </Link>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", flexWrap: "wrap" }}>
+          <PushNotificationBell />
+          <Link href="/" style={{
+            padding: "10px 20px",
+            backgroundColor: "#6c757d",
+            color: "white",
+            textDecoration: "none",
+            borderRadius: "4px"
+          }}>
+            Back to Home
+          </Link>
+        </div>
       </div>
 
       {error && (

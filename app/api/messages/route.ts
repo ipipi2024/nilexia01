@@ -4,6 +4,7 @@ import { getMessagesCollection, generateConversationId, Message } from "@/app/li
 import { validateSendMessage, sanitizeString } from "@/app/lib/validation/message";
 import { requireAuth } from "@/app/lib/auth-helpers";
 import client from "@/app/lib/mongodb";
+import { sendPushToUser } from "@/app/lib/push";
 
 /**
  * POST /api/messages
@@ -73,6 +74,13 @@ export async function POST(request: NextRequest) {
     // Insert into database
     const collection = getMessagesCollection();
     const result = await collection.insertOne(message);
+
+    // Fire-and-forget push notification — never delays or fails the response
+    sendPushToUser(receiverId, {
+      title: "New message",
+      body: "You received a new message",
+      url: "/messages",
+    }).catch(() => {});
 
     // Return success response
     return NextResponse.json(
