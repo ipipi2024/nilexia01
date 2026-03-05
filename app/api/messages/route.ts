@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       title: "New message",
       body: "You received a new message",
       url: "/messages",
-    }).catch(() => {});
+    }).catch(console.error);
 
     // Return success response
     return NextResponse.json(
