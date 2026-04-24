@@ -65,6 +65,7 @@ export default function AppHeader() {
               >
                 <HeaderIcon>
                   <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="10" cy="10" r="6.25" />
                     <path d="M10 6.5v7" strokeLinecap="round" />
                     <path d="M6.5 10h7" strokeLinecap="round" />
                   </svg>

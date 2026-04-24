@@ -26,15 +26,20 @@ interface Listing {
 export default function MyListingsPage() {
   const router = useRouter();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading]   = useState(true);
-  const [error, setError]       = useState("");
-  const [user, setUser]         = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [user, setUser] = useState<any>(null);
 
-  useEffect(() => { checkAuth(); }, []);
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const checkAuth = async () => {
     const { data: session } = await authClient.getSession();
-    if (!session?.user) { router.push("/login"); return; }
+    if (!session?.user) {
+      router.push("/login");
+      return;
+    }
     setUser(session.user);
     fetchMyListings(session.user.id);
   };
@@ -61,7 +66,7 @@ export default function MyListingsPage() {
     try {
       const response = await fetch(`/api/listings/${id}`, { method: "DELETE", credentials: "include" });
       if (response.status === 204) {
-        setListings(listings.filter(l => l.id !== id));
+        setListings(listings.filter((l) => l.id !== id));
       } else {
         alert("Failed to delete listing");
       }
@@ -80,7 +85,7 @@ export default function MyListingsPage() {
       });
       if (response.ok) {
         const updated = await response.json();
-        setListings(listings.map(l => l.id === id ? updated : l));
+        setListings(listings.map((l) => (l.id === id ? updated : l)));
       } else {
         alert("Failed to update status");
       }
@@ -123,7 +128,7 @@ export default function MyListingsPage() {
 
         {!loading && listings.length === 0 && (
           <EmptyState
-            icon="📦"
+            icon="[]"
             title="No listings yet"
             description="Start selling, donating, or renting items to the FIT community."
             action={{ label: "Create Your First Listing", href: "/listings/create" }}
@@ -131,84 +136,73 @@ export default function MyListingsPage() {
         )}
 
         {!loading && listings.length > 0 && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div className="my-listings-list">
             {listings.map((listing) => (
               <div key={listing.id} className="listing-row">
-                {listing.images[0] ? (
-                  <img src={listing.images[0]} alt={listing.title} className="listing-row__img" />
-                ) : (
-                  <div className="listing-row__no-img">🖼</div>
-                )}
+                <Link
+                  href={`/listings/${listing.id}`}
+                  className="listing-row__media"
+                  aria-label={`View ${listing.title}`}
+                >
+                  {listing.images[0] ? (
+                    <img src={listing.images[0]} alt={listing.title} className="listing-row__img" />
+                  ) : (
+                    <div className="listing-row__no-img">IMG</div>
+                  )}
+                </Link>
 
                 <div className="listing-row__body">
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      flexWrap: "wrap",
-                      gap: "8px",
-                    }}
-                  >
-                    <h3 style={{ fontSize: "16px", fontWeight: 600, margin: 0 }}>{listing.title}</h3>
-                    {listing.price !== null && (
-                      <span style={{ fontWeight: 700, fontSize: "18px", color: "var(--c-success)", whiteSpace: "nowrap" }}>
-                        ${listing.price}
-                      </span>
-                    )}
+                  <div className="listing-row__top">
+                    <div className="listing-row__heading">
+                      <Link href={`/listings/${listing.id}`} className="listing-row__title">
+                        {listing.title}
+                      </Link>
+                      <p className="listing-row__meta">
+                        Posted {new Date(listing.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+
+                    {listing.price !== null && <span className="listing-row__price">${listing.price}</span>}
                   </div>
 
-                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+                  <div className="listing-row__badges">
                     <Badge type={listing.type} />
                     <Badge status={listing.status} />
                   </div>
 
-                  <p
-                    style={{
-                      fontSize: "13px",
-                      color: "var(--c-gray-500)",
-                      overflow: "hidden",
-                      display: "-webkit-box",
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: "vertical",
-                    }}
-                  >
-                    {listing.description}
-                  </p>
+                  <p className="listing-row__desc">{listing.description}</p>
 
-                  <p style={{ fontSize: "12px", color: "var(--c-gray-400)" }}>
-                    Posted {new Date(listing.createdAt).toLocaleDateString()}
-                  </p>
+                  <div className="listing-row__footer">
+                    <div className="listing-row__actions">
+                      <Link href={`/listings/${listing.id}`} className="btn btn-outline btn-sm">
+                        View
+                      </Link>
+                      <Link href={`/listings/${listing.id}/edit`} className="btn btn-ghost btn-sm">
+                        Edit
+                      </Link>
+                    </div>
 
-                  <div className="listing-row__actions">
-                    <Link href={`/listings/${listing.id}`} className="btn btn-outline btn-sm">
-                      View
-                    </Link>
-                    <Link href={`/listings/${listing.id}/edit`} className="btn btn-ghost btn-sm">
-                      Edit
-                    </Link>
+                    <div className="listing-row__controls">
+                      <select
+                        value={listing.status}
+                        onChange={(e) => updateStatus(listing.id, e.target.value)}
+                        className="form-select btn-sm listing-row__status"
+                      >
+                        <option value="available">Available</option>
+                        <option value="unavailable">Unavailable</option>
+                        <option value="sold" disabled={listing.type !== "sell"}>Sold</option>
+                        <option value="donated" disabled={listing.type !== "donate"}>Donated</option>
+                        <option value="rented" disabled={listing.type !== "rent"}>Rented</option>
+                      </select>
 
-                    {/* Inline status selector */}
-                    <select
-                      value={listing.status}
-                      onChange={(e) => updateStatus(listing.id, e.target.value)}
-                      className="form-select btn-sm"
-                      style={{ width: "auto", paddingRight: "28px" }}
-                    >
-                      <option value="available">Available</option>
-                      <option value="unavailable">Unavailable</option>
-                      <option value="sold"    disabled={listing.type !== "sell"}>Sold</option>
-                      <option value="donated" disabled={listing.type !== "donate"}>Donated</option>
-                      <option value="rented"  disabled={listing.type !== "rent"}>Rented</option>
-                    </select>
-
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => deleteListing(listing.id)}
-                    >
-                      Delete
-                    </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        onClick={() => deleteListing(listing.id)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
