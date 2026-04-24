@@ -332,6 +332,34 @@ img { display: block; max-width: 100%; }
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.app-header__nav-action {
+  min-height: 34px;
+}
+
+.app-header__action-icon {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.app-header__action-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.app-header__action-label {
+  display: inline-flex;
+  align-items: center;
+}
+
+.app-header__messages-action {
+  position: relative;
 }
 
 /* ─────────────────────────────────────────────
@@ -868,8 +896,56 @@ img { display: block; max-width: 100%; }
    Responsive
 ───────────────────────────────────────────── */
 @media (max-width: 640px) {
-  .app-header__inner { height: 52px; padding: 0 12px; }
+  .app-header__inner {
+    min-height: 52px;
+    height: auto;
+    padding: 8px 12px;
+    align-items: center;
+  }
   .app-header__brand { font-size: 17px; }
+  .app-header__nav {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .app-header__nav-action {
+    min-width: 36px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border-radius: 9999px;
+  }
+  .app-header__nav-action--create {
+    background: transparent;
+    color: var(--c-gray-600);
+    border-color: transparent;
+  }
+  .app-header__nav-action--create:hover {
+    background: var(--c-gray-100);
+    color: var(--c-gray-800);
+    border-color: transparent;
+  }
+  .app-header__action-icon {
+    display: inline-flex;
+  }
+  .app-header__action-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .app-header__messages-action .badge-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    padding: 1px 5px;
+    font-size: 11px;
+  }
   .page-container { padding: 16px 12px; }
   .auth-card { padding: 28px 20px; }
   .hide-mobile { display: none !important; }
