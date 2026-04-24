@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import TermsGuard from "./components/TermsGuard";
+import "./globals.css";
+
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "Nilexia — FIT Marketplace",
@@ -16,21 +20,21 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#007bff",
+  themeColor: "#2563eb",
 };
 
 export default function RootLayout({
-    children,
-  }: {
-    children: React.ReactNode
-  }) {
-    return (
-      <html lang="en">
-        <body>
-          <TermsGuard>
-            {children}
-          </TermsGuard>
-        </body>
-      </html>
-    )
-  }
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body className={inter.className}>
+        <TermsGuard>
+          {children}
+        </TermsGuard>
+      </body>
+    </html>
+  );
+}

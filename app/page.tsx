@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "@/app/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useSession } from "@/app/lib/auth-client";
+import AppHeader from "@/app/components/layout/AppHeader";
+import Badge from "@/app/components/ui/Badge";
+import EmptyState from "@/app/components/ui/EmptyState";
+import LoadingState from "@/app/components/ui/LoadingState";
 
 interface Listing {
   id: string;
@@ -17,306 +20,137 @@ interface Listing {
   createdAt: string;
 }
 
+const FILTERS = [
+  { value: "all",    label: "All" },
+  { value: "sell",   label: "For Sale" },
+  { value: "donate", label: "Free / Donate" },
+  { value: "rent",   label: "For Rent" },
+] as const;
+
+type Filter = (typeof FILTERS)[number]["value"];
+
 export default function Page() {
-  const router = useRouter();
   const { data: session } = useSession();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [filter, setFilter] = useState<"all" | "sell" | "donate" | "rent">("all");
-  const [totalUnreadMessages, setTotalUnreadMessages] = useState(0);
-
-  const handleSignOut = async () => {
-    await signOut();
-    router.refresh();
-  };
+  const [loading, setLoading]   = useState(true);
+  const [error, setError]       = useState("");
+  const [filter, setFilter]     = useState<Filter>("all");
 
   useEffect(() => {
     fetchListings();
   }, [filter]);
 
-  useEffect(() => {
-    if (session) {
-      fetchUnreadMessageCount();
-    }
-  }, [session]);
-
   const fetchListings = async () => {
     try {
       setLoading(true);
-      const url = filter === "all"
-        ? "/api/listings"
-        : `/api/listings?type=${filter}`;
+      const url = filter === "all" ? "/api/listings" : `/api/listings?type=${filter}`;
       const response = await fetch(url);
-
       if (response.ok) {
-        const data = await response.json();
-        setListings(data);
+        setListings(await response.json());
       } else {
         setError("Failed to load listings");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to load listings");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchUnreadMessageCount = async () => {
-    try {
-      const response = await fetch("/api/messages/conversations");
-      if (response.ok) {
-        const data = await response.json();
-        const total = data.conversations.reduce((sum: number, conv: any) => sum + conv.unreadCount, 0);
-        setTotalUnreadMessages(total);
-      }
-    } catch (err) {
-      // Silently fail - unread count is not critical
-    }
-  };
-
   return (
-    <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "15px" }}>
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .header-container {
-            flex-direction: column !important;
-            align-items: stretch !important;
-          }
-          .nav-buttons {
-            justify-content: center !important;
-          }
-          .nav-buttons a, .nav-buttons button {
-            flex: 1 1 auto;
-            min-width: 120px;
-          }
-        }
-      `}</style>
-      <div className="header-container" style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: "20px",
-        marginBottom: "30px"
-      }}>
-        <h1 style={{ margin: 0 }}>Campus Marketplace</h1>
-        <div className="nav-buttons" style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "10px"
-        }}>
-          {session && (
-            <>
-              <Link href="/listings/create" style={{
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "white",
-                textDecoration: "none",
-                borderRadius: "4px"
-              }}>
-                Create Listing
-              </Link>
-              <Link href="/listings/my-listings" style={{
-                padding: "10px 20px",
-                backgroundColor: "#6c757d",
-                color: "white",
-                textDecoration: "none",
-                borderRadius: "4px"
-              }}>
-                My Listings
-              </Link>
-              <Link href="/messages" style={{
-                padding: "10px 20px",
-                backgroundColor: "#17a2b8",
-                color: "white",
-                textDecoration: "none",
-                borderRadius: "4px",
-                position: "relative",
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px"
-              }}>
-                Messages
-                {totalUnreadMessages > 0 && (
-                  <span style={{
-                    backgroundColor: "#dc3545",
-                    color: "white",
-                    padding: "2px 8px",
-                    borderRadius: "12px",
-                    fontSize: "12px",
-                    fontWeight: "bold"
-                  }}>
-                    {totalUnreadMessages}
-                  </span>
-                )}
-              </Link>
-              <button
-                onClick={handleSignOut}
-                style={{
-                  padding: "10px 20px",
-                  backgroundColor: "#dc3545",
-                  color: "white",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontSize: "16px"
-                }}
-              >
-                Sign Out
-              </button>
-            </>
-          )}
-          {!session && (
-            <>
-              <Link href="/login" style={{
-                padding: "10px 20px",
-                backgroundColor: "#007bff",
-                color: "white",
-                textDecoration: "none",
-                borderRadius: "4px"
-              }}>
-                Log In
-              </Link>
-              <Link href="/signup" style={{
-                padding: "10px 20px",
-                backgroundColor: "#28a745",
-                color: "white",
-                textDecoration: "none",
-                borderRadius: "4px"
-              }}>
-                Sign Up
-              </Link>
-            </>
-          )}
+    <>
+      <AppHeader />
+
+      <div className="page-container">
+        {/* Page heading */}
+        <div style={{ marginBottom: "24px" }}>
+          <h1 style={{ fontSize: "26px", fontWeight: 800, letterSpacing: "-0.02em", marginBottom: "4px" }}>
+            Campus Marketplace
+          </h1>
+          <p className="text-muted">Buy, sell, donate, and rent within the Florida Tech community.</p>
         </div>
-      </div>
 
-      <div style={{ marginBottom: "20px" }}>
-        <label style={{ marginRight: "10px" }}>Filter:</label>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as any)}
-          style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-        >
-          <option value="all">All</option>
-          <option value="sell">For Sale</option>
-          <option value="donate">Free/Donate</option>
-          <option value="rent">For Rent</option>
-        </select>
-      </div>
-
-      {loading && <p>Loading listings...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(min(300px, 100%), 1fr))",
-        gap: "20px"
-      }}>
-        {listings.map((listing) => (
-          <Link
-            key={listing.id}
-            href={`/listings/${listing.id}`}
-            style={{ textDecoration: "none", color: "inherit" }}
-          >
-            <div style={{
-              border: "1px solid #ddd",
-              borderRadius: "8px",
-              padding: "15px",
-              cursor: "pointer",
-              transition: "box-shadow 0.2s"
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)"}
-            onMouseLeave={(e) => e.currentTarget.style.boxShadow = "none"}
+        {/* Filter pills */}
+        <div className="filter-bar">
+          <span className="filter-bar__label">Filter:</span>
+          {FILTERS.map(({ value, label }) => (
+            <button
+              key={value}
+              className={`filter-pill ${filter === value ? "filter-pill--active" : ""}`}
+              onClick={() => setFilter(value)}
             >
-              {listing.images[0] && (
-                <img
-                  src={listing.images[0]}
-                  alt={listing.title}
-                  style={{
-                    width: "100%",
-                    height: "200px",
-                    objectFit: "cover",
-                    borderRadius: "4px",
-                    marginBottom: "10px"
-                  }}
-                />
-              )}
+              {label}
+            </button>
+          ))}
+        </div>
 
-              <h3 style={{ margin: "0 0 10px 0" }}>{listing.title}</h3>
+        {/* States */}
+        {loading && <LoadingState text="Loading listings…" />}
 
-              <div style={{ marginBottom: "10px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                <span style={{
-                  display: "inline-block",
-                  padding: "4px 8px",
-                  backgroundColor:
-                    listing.type === "sell" ? "#28a745" :
-                    listing.type === "donate" ? "#17a2b8" : "#ffc107",
-                  color: "white",
-                  borderRadius: "4px",
-                  fontSize: "12px"
-                }}>
-                  {listing.type === "sell" ? "For Sale" :
-                   listing.type === "donate" ? "Free" : "For Rent"}
-                </span>
+        {error && !loading && (
+          <div className="alert alert-error" style={{ marginBottom: "20px" }}>
+            {error}
+          </div>
+        )}
 
-                {/* Activity Status Badge - Show for completed items */}
-                {["sold", "donated", "rented"].includes(listing.status) && (
-                  <span style={{
-                    display: "inline-block",
-                    padding: "4px 8px",
-                    backgroundColor: "#6c757d",
-                    color: "white",
-                    borderRadius: "4px",
-                    fontSize: "12px",
-                    fontWeight: "bold"
-                  }}>
-                    {listing.status.toUpperCase()}
-                  </span>
+        {/* Grid */}
+        {!loading && !error && listings.length > 0 && (
+          <div className="listing-grid">
+            {listings.map((listing) => (
+              <Link key={listing.id} href={`/listings/${listing.id}`} className="listing-card">
+                {listing.images[0] ? (
+                  <img
+                    src={listing.images[0]}
+                    alt={listing.title}
+                    className="listing-card__img"
+                  />
+                ) : (
+                  <div className="listing-card__no-img">🖼</div>
                 )}
 
-                {listing.status === "unavailable" && (
-                  <span style={{
-                    display: "inline-block",
-                    padding: "4px 8px",
-                    backgroundColor: "#6c757d",
-                    color: "white",
-                    borderRadius: "4px",
-                    fontSize: "12px"
-                  }}>
-                    UNAVAILABLE
-                  </span>
-                )}
-              </div>
+                <div className="listing-card__body">
+                  <div className="listing-card__badges">
+                    <Badge type={listing.type} />
+                    {(["sold", "donated", "rented", "unavailable"] as const).includes(
+                      listing.status as any
+                    ) && <Badge status={listing.status} />}
+                  </div>
 
-              <p style={{
-                margin: "0 0 10px 0",
-                color: "#666",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical"
-              }}>
-                {listing.description}
-              </p>
+                  <div className="listing-card__title">{listing.title}</div>
 
-              {listing.price !== null && (
-                <p style={{ margin: 0, fontSize: "20px", fontWeight: "bold", color: "#28a745" }}>
-                  ${listing.price}
-                  {listing.type === "rent" && listing.rentPeriod && <span style={{ fontSize: "14px", color: "#666" }}> /{listing.rentPeriod}</span>}
-                </p>
-              )}
-            </div>
-          </Link>
-        ))}
+                  <p className="listing-card__desc">{listing.description}</p>
+
+                  {listing.price !== null && (
+                    <div className="listing-card__price">
+                      ${listing.price}
+                      {listing.type === "rent" && listing.rentPeriod && (
+                        <span className="listing-card__price-sub"> /{listing.rentPeriod}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {!loading && !error && listings.length === 0 && (
+          <EmptyState
+            icon="🛍️"
+            title="No listings yet"
+            description={
+              session
+                ? "Be the first to post something for the community."
+                : "Log in to browse and create listings."
+            }
+            action={
+              session
+                ? { label: "Create Listing", href: "/listings/create" }
+                : { label: "Log In", href: "/login" }
+            }
+          />
+        )}
       </div>
-
-      {!loading && listings.length === 0 && (
-        <p style={{ textAlign: "center", color: "#666", marginTop: "40px" }}>
-          No listings found. Be the first to create one!
-        </p>
-      )}
-    </div>
+    </>
   );
 }

@@ -1,24 +1,22 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Button from "@/app/components/ui/Button";
 
-// Converts a base64 VAPID public key string to Uint8Array for pushManager.subscribe()
 function urlBase64ToUint8Array(base64String: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
   const rawData = atob(base64);
   const output = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; i++) {
-    output[i] = rawData.charCodeAt(i);
-  }
+  for (let i = 0; i < rawData.length; i++) output[i] = rawData.charCodeAt(i);
   return output;
 }
 
 export default function PushNotificationBell() {
   const [isSupported, setIsSupported] = useState(true);
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [isLoading, setIsLoading]     = useState(true);
+  const [error, setError]             = useState("");
   const registrationRef = useRef<ServiceWorkerRegistration | null>(null);
 
   useEffect(() => {
@@ -30,7 +28,7 @@ export default function PushNotificationBell() {
 
     async function init() {
       try {
-        const reg = await navigator.serviceWorker.register("/sw.js");
+        await navigator.serviceWorker.register("/sw.js");
         registrationRef.current = await navigator.serviceWorker.ready;
         const existing = await registrationRef.current.pushManager.getSubscription();
         setIsSubscribed(!!existing);
@@ -72,15 +70,11 @@ export default function PushNotificationBell() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           endpoint: subJson.endpoint,
-          keys: {
-            p256dh: subJson.keys?.p256dh,
-            auth: subJson.keys?.auth,
-          },
+          keys: { p256dh: subJson.keys?.p256dh, auth: subJson.keys?.auth },
         }),
       });
 
       if (!response.ok) throw new Error("Failed to save subscription");
-
       setIsSubscribed(true);
     } catch (err: any) {
       setError(err.message || "Failed to enable notifications");
@@ -105,7 +99,6 @@ export default function PushNotificationBell() {
           body: JSON.stringify({ endpoint: existing.endpoint }),
         });
       }
-
       setIsSubscribed(false);
     } catch (err: any) {
       setError(err.message || "Failed to disable notifications");
@@ -118,31 +111,18 @@ export default function PushNotificationBell() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
-      <button
+      <Button
+        variant={isSubscribed ? "success" : "ghost"}
+        size="sm"
+        loading={isLoading}
         onClick={isSubscribed ? handleDisable : handleEnable}
-        disabled={isLoading}
         title={isSubscribed ? "Disable push notifications" : "Enable push notifications"}
-        style={{
-          padding: "10px 16px",
-          backgroundColor: isSubscribed ? "#28a745" : "#6c757d",
-          color: "white",
-          border: "none",
-          borderRadius: "4px",
-          cursor: isLoading ? "not-allowed" : "pointer",
-          fontSize: "16px",
-          opacity: isLoading ? 0.7 : 1,
-          display: "flex",
-          alignItems: "center",
-          gap: "6px",
-        }}
       >
-        <span>{isLoading ? "..." : isSubscribed ? "🔔" : "🔕"}</span>
-        <span style={{ fontSize: "14px" }}>
-          {isLoading ? "Working..." : isSubscribed ? "Notifications on" : "Notifications off"}
-        </span>
-      </button>
+        {!isLoading && <span>{isSubscribed ? "🔔" : "🔕"}</span>}
+        {isLoading ? "Working…" : isSubscribed ? "Notifications on" : "Notifications off"}
+      </Button>
       {error && (
-        <p style={{ margin: 0, fontSize: "12px", color: "#dc3545", maxWidth: "220px", textAlign: "right" }}>
+        <p style={{ margin: 0, fontSize: "12px", color: "var(--c-danger)", maxWidth: "220px", textAlign: "right" }}>
           {error}
         </p>
       )}

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/app/lib/auth-client";
+import Alert from "@/app/components/ui/Alert";
+import Button from "@/app/components/ui/Button";
 
 interface Message {
   _id: string;
@@ -25,22 +27,18 @@ export default function ChatPage() {
   const params = useParams();
   const router = useRouter();
   const { data: session, isPending } = useSession();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages]   = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [sending, setSending] = useState(false);
-  const [error, setError] = useState("");
+  const [loading, setLoading]     = useState(true);
+  const [sending, setSending]     = useState(false);
+  const [error, setError]         = useState("");
   const [otherUser, setOtherUser] = useState<User | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const otherUserId = params.userId as string;
 
   useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/login");
-      return;
-    }
-
+    if (!isPending && !session) { router.push("/login"); return; }
     if (session) {
       loadMessages();
       markMessagesAsRead();
@@ -49,22 +47,15 @@ export default function ChatPage() {
   }, [session, isPending, otherUserId]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }, [messages]);
 
   const fetchOtherUserInfo = async () => {
     try {
       const response = await fetch(`/api/users/${otherUserId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setOtherUser(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch user info:", err);
+      if (response.ok) setOtherUser(await response.json());
+    } catch {
+      console.error("Failed to fetch user info");
     }
   };
 
@@ -72,7 +63,6 @@ export default function ChatPage() {
     try {
       setLoading(true);
       const response = await fetch(`/api/messages?userId=${otherUserId}`);
-
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages);
@@ -81,7 +71,7 @@ export default function ChatPage() {
       } else {
         setError("Failed to load messages");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to load messages");
     } finally {
       setLoading(false);
@@ -90,20 +80,19 @@ export default function ChatPage() {
 
   const markMessagesAsRead = async () => {
     try {
-      const conversationId = [session?.user.id, otherUserId].sort().join('_');
+      const conversationId = [session?.user.id, otherUserId].sort().join("_");
       await fetch("/api/messages/read", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversationId }),
       });
-    } catch (err) {
-      console.error("Failed to mark messages as read:", err);
+    } catch {
+      console.error("Failed to mark messages as read");
     }
   };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!newMessage.trim() || sending) return;
 
     try {
@@ -111,10 +100,7 @@ export default function ChatPage() {
       const response = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          receiverId: otherUserId,
-          content: newMessage.trim(),
-        }),
+        body: JSON.stringify({ receiverId: otherUserId, content: newMessage.trim() }),
       });
 
       if (response.ok) {
@@ -126,91 +112,60 @@ export default function ChatPage() {
         const data = await response.json();
         setError(data.error || "Failed to send message");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to send message");
     } finally {
       setSending(false);
     }
   };
 
-  if (isPending || loading) {
-    return (
-      <div style={{ maxWidth: "800px", margin: "20px auto", padding: "15px" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "15px", height: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{
-        marginBottom: "20px",
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: "10px"
-      }}>
-        <Link href="/messages" style={{ color: "#007bff", textDecoration: "none" }}>
-          ← Back to conversations
+    <div className="chat-page">
+      {/* Chat header */}
+      <div className="chat-header">
+        <Link href="/messages" className="back-link" style={{ margin: 0 }}>
+          ← Back
         </Link>
-        {otherUser && <h2 style={{ margin: 0, fontSize: "clamp(18px, 4vw, 24px)" }}>Chat with {otherUser.name}</h2>}
+        {otherUser && (
+          <h2 style={{ fontSize: "16px", fontWeight: 600, flex: 1, textAlign: "center", margin: 0 }}>
+            {otherUser.name}
+          </h2>
+        )}
+        {/* spacer to keep title centered */}
+        <div style={{ width: "60px" }} />
       </div>
 
+      {/* Error banner */}
       {error && (
-        <div style={{ padding: "10px", backgroundColor: "#f8d7da", color: "#721c24", borderRadius: "4px", marginBottom: "10px" }}>
-          {error}
+        <div style={{ padding: "8px 20px", background: "var(--c-danger-100)" }}>
+          <Alert variant="error">{error}</Alert>
         </div>
       )}
 
-      <div style={{
-        flex: 1,
-        overflowY: "auto",
-        border: "1px solid #ddd",
-        borderRadius: "8px",
-        padding: "20px",
-        backgroundColor: "#f8f9fa",
-        marginBottom: "20px"
-      }}>
-        {messages.length === 0 ? (
-          <p style={{ textAlign: "center", color: "#666" }}>
-            No messages yet. Start the conversation!
-          </p>
+      {/* Messages */}
+      <div className="chat-messages-area">
+        {loading ? (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", flex: 1, gap: "10px", color: "var(--c-gray-500)", fontSize: "14px" }}>
+            <span className="spinner" />
+            Loading messages…
+          </div>
+        ) : messages.length === 0 ? (
+          <div style={{ textAlign: "center", color: "var(--c-gray-400)", fontSize: "14px", marginTop: "40px" }}>
+            No messages yet. Say hello! 👋
+          </div>
         ) : (
           messages.map((message) => {
-            const isCurrentUser = message.senderId === session?.user.id;
+            const isMine = message.senderId === session?.user.id;
             return (
               <div
                 key={message._id}
-                style={{
-                  display: "flex",
-                  justifyContent: isCurrentUser ? "flex-end" : "flex-start",
-                  marginBottom: "15px"
-                }}
+                className={`chat-bubble-row ${isMine ? "chat-bubble-row--sent" : "chat-bubble-row--received"}`}
               >
-                <div
-                  style={{
-                    maxWidth: "70%",
-                    padding: "10px 15px",
-                    borderRadius: "12px",
-                    backgroundColor: isCurrentUser ? "#007bff" : "#e9ecef",
-                    color: isCurrentUser ? "white" : "black",
-                  }}
-                >
-                  <p style={{ margin: "0 0 5px 0", wordWrap: "break-word" }}>
-                    {message.content}
-                  </p>
-                  <p style={{
-                    margin: 0,
-                    fontSize: "11px",
-                    opacity: 0.7,
-                    textAlign: "right"
-                  }}>
-                    {new Date(message.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
+                <div className={`chat-bubble ${isMine ? "chat-bubble--sent" : "chat-bubble--received"}`}>
+                  <div>{message.content}</div>
+                  <div className="chat-bubble__time">
+                    {new Date(message.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                  </div>
                 </div>
               </div>
             );
@@ -219,39 +174,29 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={sendMessage} style={{ display: "flex", gap: "10px" }}>
-        <input
-          type="text"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type your message..."
-          maxLength={1000}
-          style={{
-            flex: 1,
-            padding: "12px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            fontSize: "16px"
-          }}
-          disabled={sending}
-        />
-        <button
-          type="submit"
-          disabled={!newMessage.trim() || sending}
-          style={{
-            padding: "12px 24px",
-            backgroundColor: sending || !newMessage.trim() ? "#ccc" : "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: sending || !newMessage.trim() ? "not-allowed" : "pointer",
-            fontSize: "16px",
-            fontWeight: "500"
-          }}
-        >
-          {sending ? "Sending..." : "Send"}
-        </button>
-      </form>
+      {/* Input */}
+      <div className="chat-input-area">
+        <form onSubmit={sendMessage} style={{ display: "flex", gap: "10px", flex: 1 }}>
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Type a message…"
+            maxLength={1000}
+            className="form-input"
+            style={{ flex: 1 }}
+            disabled={sending}
+          />
+          <Button
+            type="submit"
+            disabled={!newMessage.trim()}
+            loading={sending}
+            variant="primary"
+          >
+            Send
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }

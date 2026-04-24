@@ -5,6 +5,10 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import MessageButton from "@/app/components/MessageButton";
 import { useSession } from "@/app/lib/auth-client";
+import PageContainer from "@/app/components/layout/PageContainer";
+import Badge from "@/app/components/ui/Badge";
+import Alert from "@/app/components/ui/Alert";
+import LoadingState from "@/app/components/ui/LoadingState";
 
 interface Listing {
   id: string;
@@ -16,109 +20,100 @@ interface Listing {
   images: string[];
   status: "available" | "unavailable" | "sold" | "donated" | "rented";
   createdAt: string;
-  user?: {
-    id: string;
-    name: string;
-    email: string;
-  };
+  user?: { id: string; name: string; email: string };
 }
 
 export default function ListingDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const { data: session } = useSession();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError]     = useState("");
 
-  useEffect(() => {
-    fetchListing();
-  }, [params.id]);
+  useEffect(() => { fetchListing(); }, [params.id]);
 
   const fetchListing = async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/listings/${params.id}`);
-
       if (response.ok) {
-        const data = await response.json();
-        setListing(data);
+        setListing(await response.json());
       } else if (response.status === 404) {
         setError("Listing not found");
       } else {
         setError("Failed to load listing");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to load listing");
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
+  if (loading) return <LoadingState />;
 
   if (error || !listing) {
     return (
-      <div style={{ maxWidth: "800px", margin: "50px auto", padding: "20px" }}>
-        <p style={{ color: "red" }}>{error || "Listing not found"}</p>
-        <Link href="/" style={{ color: "#007bff" }}>
-          ← Back to listings
-        </Link>
-      </div>
+      <PageContainer size="medium">
+        <Link href="/" className="back-link">← Back to listings</Link>
+        <Alert variant="error">{error || "Listing not found"}</Alert>
+      </PageContainer>
     );
   }
 
-  return (
-    <div style={{ maxWidth: "800px", margin: "20px auto", padding: "15px" }}>
-      <Link href="/" style={{ color: "#007bff", marginBottom: "20px", display: "inline-block" }}>
-        ← Back to listings
-      </Link>
+  const isOwner = session && listing.user && session.user.id === listing.user.id;
 
-      <div style={{ border: "1px solid #ddd", borderRadius: "8px", padding: "20px" }}>
+  return (
+    <PageContainer size="medium">
+      <Link href="/" className="back-link">← Back to listings</Link>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+        {/* Image gallery */}
         {listing.images.length > 0 && (
-          <div style={{ marginBottom: "20px" }}>
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
             <img
               src={listing.images[0]}
               alt={listing.title}
               style={{
                 width: "100%",
-                maxHeight: "400px",
+                maxHeight: "420px",
                 objectFit: "contain",
-                borderRadius: "8px",
-                backgroundColor: "#f5f5f5"
+                background: "var(--c-gray-50)",
+                display: "block",
               }}
             />
             {listing.images.length > 1 && (
-              <div style={{
-                display: "flex",
-                gap: "10px",
-                marginTop: "10px",
-                overflowX: "auto",
-                WebkitOverflowScrolling: "touch"
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  padding: "12px",
+                  overflowX: "auto",
+                  borderTop: "1px solid var(--c-gray-200)",
+                  background: "#fff",
+                }}
+              >
                 {listing.images.slice(1).map((img, idx) => (
                   <img
                     key={idx}
                     src={img}
                     alt={`${listing.title} ${idx + 2}`}
                     style={{
-                      width: "80px",
-                      height: "80px",
-                      minWidth: "80px",
+                      width: "72px",
+                      height: "72px",
+                      minWidth: "72px",
                       objectFit: "cover",
-                      borderRadius: "4px",
-                      cursor: "pointer"
+                      borderRadius: "var(--r)",
+                      border: "1.5px solid var(--c-gray-200)",
+                      cursor: "pointer",
+                      transition: "border-color 0.15s",
                     }}
                     onClick={() => {
                       const newImages = [img, ...listing.images.filter(i => i !== img)];
                       setListing({ ...listing, images: newImages });
                     }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--c-primary)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--c-gray-200)")}
                   />
                 ))}
               </div>
@@ -126,73 +121,57 @@ export default function ListingDetailPage() {
           </div>
         )}
 
-        <div style={{ marginBottom: "10px" }}>
-          <span style={{
-            display: "inline-block",
-            padding: "6px 12px",
-            backgroundColor:
-              listing.type === "sell" ? "#28a745" :
-              listing.type === "donate" ? "#17a2b8" : "#ffc107",
-            color: "white",
-            borderRadius: "4px",
-            fontSize: "14px"
-          }}>
-            {listing.type === "sell" ? "For Sale" :
-             listing.type === "donate" ? "Free/Donate" : "For Rent"}
-          </span>
+        {/* Main info card */}
+        <div className="section-card">
+          <div style={{ display: "flex", gap: "8px", marginBottom: "12px", flexWrap: "wrap", alignItems: "center" }}>
+            <Badge type={listing.type} />
+            {listing.status !== "available" && <Badge status={listing.status} />}
+          </div>
+
+          <h1 style={{ fontSize: "26px", fontWeight: 700, marginBottom: "8px", letterSpacing: "-0.02em" }}>
+            {listing.title}
+          </h1>
+
+          {listing.price !== null && (
+            <div style={{ fontSize: "28px", fontWeight: 700, color: "var(--c-success)", marginBottom: "4px" }}>
+              ${listing.price}
+              {listing.type === "rent" && listing.rentPeriod && (
+                <span style={{ fontSize: "16px", fontWeight: 400, color: "var(--c-gray-500)" }}>
+                  {" "}/{listing.rentPeriod}
+                </span>
+              )}
+            </div>
+          )}
+
+          <p style={{ fontSize: "12px", color: "var(--c-gray-400)", marginTop: "8px" }}>
+            Posted {new Date(listing.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+          </p>
         </div>
 
-        <h1 style={{ margin: "20px 0" }}>{listing.title}</h1>
-
-        {listing.price !== null && (
-          <p style={{ fontSize: "32px", fontWeight: "bold", color: "#28a745", margin: "10px 0" }}>
-            ${listing.price}
-            {listing.type === "rent" && listing.rentPeriod && <span style={{ fontSize: "16px", color: "#666" }}> /{listing.rentPeriod}</span>}
-          </p>
-        )}
-
-        <div style={{
-          backgroundColor: "#f8f9fa",
-          padding: "20px",
-          borderRadius: "8px",
-          marginTop: "20px"
-        }}>
-          <h3 style={{ marginTop: 0 }}>Description</h3>
-          <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
+        {/* Description */}
+        <div className="section-card">
+          <h3 className="section-card__title">Description</h3>
+          <p style={{ whiteSpace: "pre-wrap", lineHeight: "1.65", fontSize: "14px", color: "var(--c-gray-700)" }}>
             {listing.description}
           </p>
         </div>
 
+        {/* Seller contact */}
         {listing.user && (
-          <div style={{
-            backgroundColor: "#f8f9fa",
-            padding: "20px",
-            borderRadius: "8px",
-            marginTop: "20px"
-          }}>
-            <h3 style={{ marginTop: 0 }}>Contact Seller</h3>
-            <p style={{ margin: "5px 0" }}>
+          <div className="section-card">
+            <h3 className="section-card__title">
+              {isOwner ? "Your Listing" : "Contact Seller"}
+            </h3>
+            <p style={{ fontSize: "14px", color: "var(--c-gray-700)", marginBottom: "4px" }}>
               <strong>Name:</strong> {listing.user.name}
             </p>
-            <p style={{ margin: "5px 0 15px 0" }}>
+            <p style={{ fontSize: "14px", color: "var(--c-gray-700)", marginBottom: "16px" }}>
               <strong>Email:</strong>{" "}
-              <a href={`mailto:${listing.user.email}`} style={{ color: "#007bff" }}>
-                {listing.user.email}
-              </a>
+              <a href={`mailto:${listing.user.email}`}>{listing.user.email}</a>
             </p>
-            {session && session.user.id === listing.user.id ? (
-              <Link
-                href={`/listings/${listing.id}/edit`}
-                style={{
-                  display: "inline-block",
-                  padding: "10px 20px",
-                  backgroundColor: "#007bff",
-                  color: "white",
-                  textDecoration: "none",
-                  borderRadius: "4px",
-                  fontWeight: "bold"
-                }}
-              >
+
+            {isOwner ? (
+              <Link href={`/listings/${listing.id}/edit`} className="btn btn-primary">
                 Edit Listing
               </Link>
             ) : (
@@ -200,28 +179,7 @@ export default function ListingDetailPage() {
             )}
           </div>
         )}
-
-        <div style={{ marginTop: "20px", color: "#666", fontSize: "14px" }}>
-          <p>Posted on: {new Date(listing.createdAt).toLocaleDateString()}</p>
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span>Status:</span>
-            <span style={{
-              display: "inline-block",
-              padding: "4px 12px",
-              backgroundColor:
-                listing.status === "available" ? "#28a745" :
-                ["sold", "donated", "rented"].includes(listing.status) ? "#6c757d" : "#6c757d",
-              color: "white",
-              borderRadius: "4px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              textTransform: "uppercase"
-            }}>
-              {listing.status}
-            </span>
-          </div>
-        </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }

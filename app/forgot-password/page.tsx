@@ -3,110 +3,89 @@
 import { useState } from "react";
 import { authClient } from "../lib/auth-client";
 import Link from "next/link";
+import Input from "@/app/components/ui/Input";
+import Button from "@/app/components/ui/Button";
+import Alert from "@/app/components/ui/Alert";
 
 export default function ForgotPasswordPage() {
-    const [email, setEmail] = useState("");
-    const [error, setError] = useState("");
-    const [success, setSuccess] = useState(false);
-    const [loading, setLoading] = useState(false);
+  const [email, setEmail]     = useState("");
+  const [error, setError]     = useState("");
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError("");
-        setSuccess(false);
-        setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
+    setLoading(true);
 
-        try {
-            await authClient.requestPasswordReset({
-                email,
-                redirectTo: "/reset-password",
-            });
+    try {
+      await authClient.requestPasswordReset({
+        email,
+        redirectTo: "/reset-password",
+      });
+      setSuccess(true);
+      setEmail("");
+    } catch (err: any) {
+      setError(err.message || "Failed to send reset email. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            setSuccess(true);
-            setEmail("");
-        } catch (err: any) {
-            setError(err.message || "Failed to send reset email. Please try again.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
-            <h1 style={{ marginBottom: "20px" }}>Forgot Password</h1>
-
-            {success ? (
-                <div style={{
-                    padding: "15px",
-                    backgroundColor: "#d4edda",
-                    color: "#155724",
-                    borderRadius: "4px",
-                    marginBottom: "20px"
-                }}>
-                    <p style={{ margin: 0 }}>
-                        Password reset email sent! Check your inbox for instructions.
-                    </p>
-                </div>
-            ) : (
-                <p style={{ marginBottom: "20px", color: "#666" }}>
-                    Enter your email address and we'll send you a link to reset your password.
-                </p>
-            )}
-
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <div>
-                    <label htmlFor="email" style={{ display: "block", marginBottom: "5px" }}>
-                        Email Address
-                    </label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        disabled={loading}
-                        style={{
-                            width: "100%",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                            borderRadius: "4px",
-                        }}
-                    />
-                </div>
-
-                {error && (
-                    <div style={{
-                        color: "#721c24",
-                        padding: "10px",
-                        backgroundColor: "#f8d7da",
-                        borderRadius: "4px"
-                    }}>
-                        {error}
-                    </div>
-                )}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                        padding: "10px",
-                        backgroundColor: loading ? "#ccc" : "#007bff",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: loading ? "not-allowed" : "pointer",
-                    }}
-                >
-                    {loading ? "Sending..." : "Send Reset Link"}
-                </button>
-            </form>
-
-            <p style={{ marginTop: "20px", textAlign: "center" }}>
-                Remember your password?{" "}
-                <Link href="/login" style={{ color: "#007bff" }}>
-                    Back to Login
-                </Link>
-            </p>
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="auth-brand__logo">Nilexia</span>
+          <span className="auth-brand__sub">FIT Campus Marketplace</span>
         </div>
-    );
+
+        <h2 className="auth-card__title">Reset your password</h2>
+        <p className="auth-card__sub">
+          {success
+            ? "Check your inbox for next steps."
+            : "Enter your email and we'll send you a reset link."}
+        </p>
+
+        {success && (
+          <Alert variant="success" className="mb-4">
+            Password reset email sent! Check your inbox for instructions.
+          </Alert>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <Input
+            id="email"
+            label="Email Address"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@my.fit.edu"
+            required
+            disabled={loading || success}
+            autoComplete="email"
+          />
+
+          {error && <Alert variant="error">{error}</Alert>}
+
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={success}
+            variant="primary"
+            size="lg"
+            style={{ width: "100%", marginTop: "4px" }}
+          >
+            {loading ? "Sending…" : success ? "Email Sent" : "Send Reset Link"}
+          </Button>
+        </form>
+
+        <p className="auth-footer">
+          Remember your password?{" "}
+          <Link href="/login">Back to Login</Link>
+        </p>
+      </div>
+    </div>
+  );
 }

@@ -5,20 +5,31 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useSession } from "@/app/lib/auth-client";
 import PushNotificationBell from "@/app/components/PushNotificationBell";
+import AppHeader from "@/app/components/layout/AppHeader";
+import PageContainer from "@/app/components/layout/PageContainer";
+import Badge from "@/app/components/ui/Badge";
+import Alert from "@/app/components/ui/Alert";
+import EmptyState from "@/app/components/ui/EmptyState";
+import LoadingState from "@/app/components/ui/LoadingState";
 
 interface Conversation {
   conversationId: string;
-  otherUser: {
-    id: string;
-    name: string;
-    email: string;
-  };
-  lastMessage: {
-    content: string;
-    timestamp: string;
-    senderId: string;
-  };
+  otherUser: { id: string; name: string; email: string };
+  lastMessage: { content: string; timestamp: string; senderId: string };
   unreadCount: number;
+}
+
+function formatTimestamp(timestamp: string) {
+  const date = new Date(timestamp);
+  const now  = new Date();
+  const diffMins  = Math.floor((now.getTime() - date.getTime()) / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays  = Math.floor(diffHours / 24);
+  if (diffMins  <  1) return "Just now";
+  if (diffMins  < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays  <  7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
 }
 
 export default function ConversationsPage() {
@@ -26,24 +37,17 @@ export default function ConversationsPage() {
   const { data: session, isPending } = useSession();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError]     = useState("");
 
   useEffect(() => {
-    if (!isPending && !session) {
-      router.push("/login");
-      return;
-    }
-
-    if (session) {
-      fetchConversations();
-    }
+    if (!isPending && !session) { router.push("/login"); return; }
+    if (session) fetchConversations();
   }, [session, isPending]);
 
   const fetchConversations = async () => {
     try {
       setLoading(true);
       const response = await fetch("/api/messages/conversations");
-
       if (response.ok) {
         const data = await response.json();
         setConversations(data.conversations);
@@ -52,167 +56,99 @@ export default function ConversationsPage() {
       } else {
         setError("Failed to load conversations");
       }
-    } catch (err) {
+    } catch {
       setError("Failed to load conversations");
     } finally {
       setLoading(false);
     }
   };
 
-  const truncateMessage = (message: string, maxLength: number = 50) => {
-    if (message.length <= maxLength) return message;
-    return message.substring(0, maxLength) + "...";
-  };
+  if (isPending || loading) return (
+    <>
+      <AppHeader />
+      <LoadingState />
+    </>
+  );
 
-  const formatTimestamp = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
-  if (isPending || loading) {
-    return (
-      <div style={{ maxWidth: "800px", margin: "20px auto", padding: "15px" }}>
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (!session) {
-    return null;
-  }
+  if (!session) return null;
 
   return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", padding: "15px" }}>
-      <div style={{
-        marginBottom: "30px",
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: "15px"
-      }}>
-        <h1 style={{ margin: 0, fontSize: "clamp(24px, 5vw, 32px)" }}>Messages</h1>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", flexWrap: "wrap" }}>
+    <>
+      <AppHeader />
+      <PageContainer size="medium">
+        {/* Page heading */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "12px",
+            marginBottom: "24px",
+          }}
+        >
+          <div>
+            <h1 style={{ fontSize: "24px", fontWeight: 800, letterSpacing: "-0.02em" }}>Messages</h1>
+            <p className="text-muted" style={{ marginTop: "2px" }}>Your conversations</p>
+          </div>
           <PushNotificationBell />
-          <Link href="/" style={{
-            padding: "10px 20px",
-            backgroundColor: "#6c757d",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "4px"
-          }}>
-            Back to Home
-          </Link>
         </div>
-      </div>
 
-      {error && (
-        <div style={{ padding: "10px", backgroundColor: "#f8d7da", color: "#721c24", borderRadius: "4px", marginBottom: "20px" }}>
-          {error}
-        </div>
-      )}
+        {error && <Alert variant="error" className="mb-4">{error}</Alert>}
 
-      {conversations.length === 0 ? (
-        <div style={{
-          textAlign: "center",
-          padding: "60px 20px",
-          backgroundColor: "#f8f9fa",
-          borderRadius: "8px"
-        }}>
-          <h3 style={{ color: "#666", marginBottom: "10px" }}>No conversations yet</h3>
-          <p style={{ color: "#999" }}>
-            Start messaging other users from their listings or profiles
-          </p>
-          <Link href="/" style={{
-            display: "inline-block",
-            marginTop: "20px",
-            padding: "10px 20px",
-            backgroundColor: "#007bff",
-            color: "white",
-            textDecoration: "none",
-            borderRadius: "4px"
-          }}>
-            Browse Listings
-          </Link>
-        </div>
-      ) : (
-        <div style={{ border: "1px solid #ddd", borderRadius: "8px", overflow: "hidden" }}>
-          {conversations.map((conversation) => {
-            const isLastMessageFromMe = conversation.lastMessage.senderId === session?.user.id;
-
-            return (
-              <Link
-                key={conversation.conversationId}
-                href={`/messages/${conversation.otherUser.id}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <div
-                  style={{
-                    padding: "20px",
-                    borderBottom: "1px solid #ddd",
-                    cursor: "pointer",
-                    transition: "background-color 0.2s",
-                    backgroundColor: "white",
-                    position: "relative"
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#f8f9fa"}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
+        {conversations.length === 0 ? (
+          <EmptyState
+            icon="💬"
+            title="No conversations yet"
+            description="Start a conversation by messaging a seller from their listing."
+            action={{ label: "Browse Listings", href: "/" }}
+          />
+        ) : (
+          <div className="conversation-list">
+            {conversations.map((conversation) => {
+              const isFromMe = conversation.lastMessage.senderId === session.user.id;
+              return (
+                <Link
+                  key={conversation.conversationId}
+                  href={`/messages/${conversation.otherUser.id}`}
+                  className={`conversation-item ${conversation.unreadCount > 0 ? "conversation-item--unread" : ""}`}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
-                        <h3 style={{ margin: 0, fontSize: "18px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px" }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
+                        <span style={{ fontWeight: conversation.unreadCount > 0 ? 700 : 600, fontSize: "15px", color: "var(--c-gray-900)" }}>
                           {conversation.otherUser.name}
-                        </h3>
+                        </span>
                         {conversation.unreadCount > 0 && (
-                          <span style={{
-                            backgroundColor: "#007bff",
-                            color: "white",
-                            padding: "2px 8px",
-                            borderRadius: "12px",
-                            fontSize: "12px",
-                            fontWeight: "bold"
-                          }}>
-                            {conversation.unreadCount}
-                          </span>
+                          <Badge count={conversation.unreadCount} />
                         )}
                       </div>
-                      <p style={{
-                        margin: "5px 0 0 0",
-                        color: "#666",
-                        fontSize: "14px"
-                      }}>
-                        {isLastMessageFromMe && (
-                          <span style={{ fontWeight: "500" }}>You: </span>
-                        )}
-                        {truncateMessage(conversation.lastMessage.content)}
+                      <p
+                        style={{
+                          fontSize: "13px",
+                          color: conversation.unreadCount > 0 ? "var(--c-gray-700)" : "var(--c-gray-500)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                          fontWeight: conversation.unreadCount > 0 ? 500 : 400,
+                        }}
+                      >
+                        {isFromMe && <span style={{ color: "var(--c-gray-400)" }}>You: </span>}
+                        {conversation.lastMessage.content.length > 55
+                          ? conversation.lastMessage.content.slice(0, 55) + "…"
+                          : conversation.lastMessage.content}
                       </p>
                     </div>
-                    <div style={{
-                      fontSize: "12px",
-                      color: "#999",
-                      whiteSpace: "nowrap",
-                      marginLeft: "15px"
-                    }}>
+                    <span style={{ fontSize: "12px", color: "var(--c-gray-400)", whiteSpace: "nowrap", flexShrink: 0 }}>
                       {formatTimestamp(conversation.lastMessage.timestamp)}
-                    </div>
+                    </span>
                   </div>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </PageContainer>
+    </>
   );
 }

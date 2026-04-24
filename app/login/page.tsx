@@ -1,145 +1,132 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import { authClient } from "../lib/auth-client";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Input from "@/app/components/ui/Input";
+import Button from "@/app/components/ui/Button";
+import Alert from "@/app/components/ui/Alert";
 
 function LoginForm() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [rememberMe, setRememberMe] = useState(true);
-    const [error, setError] = useState("");
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const returnUrl = searchParams.get("returnUrl");
+  const [email, setEmail]         = useState("");
+  const [password, setPassword]   = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
+  const [error, setError]         = useState("");
+  const [loading, setLoading]     = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl");
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError("");
-        setLoading(true);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-        await authClient.signIn.email(
-            {
-                email,
-                password,
-                rememberMe,
-            },
-            {
-                onRequest: () => {
-                    setLoading(true);
-                },
-                onSuccess: () => {
-                    // Redirect to returnUrl if provided, otherwise go to homepage
-                    router.push(returnUrl || "/");
-                },
-                onError: (ctx) => {
-                    // Handle email verification errors specifically
-                    if (ctx.error.status === 403) {
-                        setError(
-                            "Please verify your email address before signing in. Check your inbox for the verification link."
-                        );
-                    } else {
-                        setError(ctx.error.message || "An error occurred during login");
-                    }
-                    setLoading(false);
-                },
-            }
-        );
-    };
-
-    return (
-        <div style={{ maxWidth: "400px", margin: "20px auto", padding: "15px" }}>
-            <h1 style={{ marginBottom: "20px", fontSize: "clamp(24px, 5vw, 32px)" }}>Login</h1>
-            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                <div>
-                    <label htmlFor="email" style={{ display: "block", marginBottom: "5px" }}>
-                        Email
-                    </label>
-                    <input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        style={{
-                            width: "100%",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                            borderRadius: "4px",
-                        }}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="password" style={{ display: "block", marginBottom: "5px" }}>
-                        Password
-                    </label>
-                    <input
-                        id="password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        style={{
-                            width: "100%",
-                            padding: "8px",
-                            border: "1px solid #ccc",
-                            borderRadius: "4px",
-                        }}
-                    />
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <input
-                            id="rememberMe"
-                            type="checkbox"
-                            checked={rememberMe}
-                            onChange={(e) => setRememberMe(e.target.checked)}
-                        />
-                        <label htmlFor="rememberMe">Remember me</label>
-                    </div>
-                    <a href="/forgot-password" style={{ color: "#007bff", fontSize: "14px" }}>
-                        Forgot password?
-                    </a>
-                </div>
-                {error && (
-                    <div style={{ color: "red", padding: "10px", backgroundColor: "#fee", borderRadius: "4px" }}>
-                        {error}
-                    </div>
-                )}
-                <button
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                        padding: "10px",
-                        backgroundColor: loading ? "#ccc" : "#007bff",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        cursor: loading ? "not-allowed" : "pointer",
-                    }}
-                >
-                    {loading ? "Logging in..." : "Login"}
-                </button>
-            </form>
-            <p style={{ marginTop: "20px", textAlign: "center" }}>
-                Don't have an account?{" "}
-                <a href="/signup" style={{ color: "#007bff" }}>
-                    Sign up
-                </a>
-            </p>
-        </div>
+    await authClient.signIn.email(
+      { email, password, rememberMe },
+      {
+        onRequest: () => setLoading(true),
+        onSuccess: () => router.push(returnUrl || "/"),
+        onError: (ctx) => {
+          if (ctx.error.status === 403) {
+            setError(
+              "Please verify your email address before signing in. Check your inbox for the verification link."
+            );
+          } else {
+            setError(ctx.error.message || "An error occurred during login");
+          }
+          setLoading(false);
+        },
+      }
     );
+  };
+
+  return (
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-brand">
+          <span className="auth-brand__logo">Nilexia</span>
+          <span className="auth-brand__sub">FIT Campus Marketplace</span>
+        </div>
+
+        <h2 className="auth-card__title">Welcome back</h2>
+        <p className="auth-card__sub">Sign in to your account</p>
+
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <Input
+            id="email"
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@my.fit.edu"
+            required
+            autoComplete="email"
+          />
+
+          <Input
+            id="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+          />
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "8px",
+            }}
+          >
+            <label className="form-checkbox-row">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+              />
+              Remember me
+            </label>
+            <Link href="/forgot-password" style={{ fontSize: "13px" }}>
+              Forgot password?
+            </Link>
+          </div>
+
+          {error && <Alert variant="error">{error}</Alert>}
+
+          <Button type="submit" loading={loading} variant="primary" size="lg" style={{ width: "100%", marginTop: "4px" }}>
+            {loading ? "Signing in…" : "Sign In"}
+          </Button>
+        </form>
+
+        <p className="auth-footer">
+          Don&apos;t have an account?{" "}
+          <Link href="/signup">Sign up</Link>
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function LoginPage() {
-    return (
-        <Suspense fallback={
-            <div style={{ maxWidth: "400px", margin: "50px auto", padding: "20px" }}>
-                <p>Loading...</p>
+  return (
+    <Suspense
+      fallback={
+        <div className="auth-page">
+          <div className="auth-card">
+            <div style={{ display: "flex", justifyContent: "center", padding: "40px 0" }}>
+              <span className="spinner spinner--lg" />
             </div>
-        }>
-            <LoginForm />
-        </Suspense>
-    );
+          </div>
+        </div>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
 }
