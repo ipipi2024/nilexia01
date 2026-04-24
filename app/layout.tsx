@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import NDAGuard from "./components/NDAGuard";
+import TermsGuard from "./components/TermsGuard";
 
 export const metadata: Metadata = {
   title: "Nilexia — FIT Marketplace",
@@ -27,9 +27,9 @@ export default function RootLayout({
     return (
       <html lang="en">
         <body>
-          <NDAGuard>
+          <TermsGuard>
             {children}
-          </NDAGuard>
+          </TermsGuard>
         </body>
       </html>
     )

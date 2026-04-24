@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 
-interface NDAModalProps {
+interface TermsModalProps {
   onAccept: () => Promise<void>;
 }
 
-export default function NDAModal({ onAccept }: NDAModalProps) {
+export default function TermsModal({ onAccept }: TermsModalProps) {
   const [hasScrolled, setHasScrolled] = useState(false);
   const [isAgreed, setIsAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,8 +26,8 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
     try {
       await onAccept();
     } catch (error) {
-      console.error("Error accepting NDA:", error);
-      alert("Failed to accept NDA. Please try again.");
+      console.error("Error accepting Terms and Conditions:", error);
+      alert("Failed to accept Terms and Conditions. Please try again.");
       setIsSubmitting(false);
     }
   };
@@ -67,7 +67,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
           }}
         >
           <h2 style={{ margin: 0, fontSize: "24px", fontWeight: "bold" }}>
-            Non-Disclosure Agreement
+            Terms and Conditions
           </h2>
           <p style={{ margin: "8px 0 0 0", color: "#6b7280", fontSize: "14px" }}>
             Please read and accept to continue using the app
@@ -90,7 +90,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
               1. Purpose and Scope
             </h3>
             <p style={{ margin: 0, color: "#374151" }}>
-              This Non-Disclosure Agreement ("NDA") governs your use of this marketplace
+              These Terms and Conditions govern your use of this marketplace
               application ("App"). By using the App, you agree to maintain the confidentiality
               of all information, content, and communications within the App.
             </p>
@@ -137,7 +137,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
                 and communications within the App
               </li>
               <li style={{ marginBottom: "8px" }}>
-                Immediately report any unauthorized disclosure or suspected breach of this NDA
+                Immediately report any unauthorized disclosure or suspected breach of these Terms and Conditions
               </li>
             </ul>
           </div>
@@ -148,7 +148,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
             </h3>
             <p style={{ margin: 0, color: "#374151" }}>
               You may only share Confidential Information with other verified members of the
-              Florida Tech community who have access to the App and have accepted this NDA.
+              Florida Tech community who have access to the App and have accepted these Terms and Conditions.
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
               6. Duration
             </h3>
             <p style={{ margin: 0, color: "#374151" }}>
-              This NDA remains in effect for as long as you have access to the App and for a
+              These Terms and Conditions remain in effect for as long as you have access to the App and for a
               period of two (2) years after your access is terminated or you graduate/leave
               Florida Tech.
             </p>
@@ -184,7 +184,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
             </h3>
             <p style={{ margin: 0, color: "#374151" }}>
               By clicking "I Agree" below, you acknowledge that you have read, understood, and
-              agree to be bound by the terms of this Non-Disclosure Agreement. You understand
+              agree to be bound by these Terms and Conditions. You understand
               that this is a legally binding agreement and that violation of its terms may result
               in serious consequences.
             </p>
@@ -249,7 +249,7 @@ export default function NDAModal({ onAccept }: NDAModalProps) {
                 }}
               />
               <span style={{ fontSize: "14px", color: "#374151" }}>
-                I have read and agree to the terms of this Non-Disclosure Agreement
+                I have read and agree to the Terms and Conditions
               </span>
             </label>
           </div>

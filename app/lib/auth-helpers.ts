@@ -6,7 +6,7 @@ export interface AuthUser {
   email: string;
   name: string;
   emailVerified: boolean;
-  ndaAcceptedAt?: Date;
+  termsAcceptedAt?: Date;
 }
 
 export interface AuthSession {
@@ -36,7 +36,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
       email: session.user.email,
       name: session.user.name,
       emailVerified: session.user.emailVerified,
-      ndaAcceptedAt: (session.user as any).ndaAcceptedAt,
+      termsAcceptedAt: (session.user as any).termsAcceptedAt,
     };
   } catch (error) {
     console.error("Error getting auth user:", error);
@@ -64,7 +64,7 @@ export async function getAuthSession(): Promise<AuthSession | null> {
         email: session.user.email,
         name: session.user.name,
         emailVerified: session.user.emailVerified,
-        ndaAcceptedAt: (session.user as any).ndaAcceptedAt,
+        termsAcceptedAt: (session.user as any).termsAcceptedAt,
       },
       session: {
         expiresAt: session.session.expiresAt,

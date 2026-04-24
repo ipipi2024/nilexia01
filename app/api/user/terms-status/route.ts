@@ -3,7 +3,7 @@ import { requireAuth } from "@/app/lib/auth-helpers";
 import client from "@/app/lib/mongodb";
 import { ObjectId } from "mongodb";
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     // Verify user is authenticated
     const user = await requireAuth();
@@ -11,17 +11,12 @@ export async function POST(req: NextRequest) {
     // Get database instance
     const db = client.db();
 
-    // Update user document with NDA acceptance timestamp
-    const result = await db.collection("user").updateOne(
+    const userDoc = await db.collection("user").findOne(
       { _id: new ObjectId(user.id) },
-      {
-        $set: {
-          ndaAcceptedAt: new Date(),
-        },
-      }
+      { projection: { termsAcceptedAt: 1 } }
     );
 
-    if (result.matchedCount === 0) {
+    if (!userDoc) {
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
@@ -29,11 +24,11 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({
-      success: true,
-      message: "NDA accepted successfully",
+      hasAcceptedTerms: !!userDoc.termsAcceptedAt,
+      termsAcceptedAt: userDoc.termsAcceptedAt || null,
     });
   } catch (error) {
-    console.error("Error accepting NDA:", error);
+    console.error("Error fetching Terms and Conditions status:", error);
 
     if (error instanceof Error && error.message === "UNAUTHORIZED") {
       return NextResponse.json(
@@ -43,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json(
-      { error: "Failed to accept NDA" },
+      { error: "Failed to fetch Terms and Conditions status" },
       { status: 500 }
     );
   }
